@@ -1,40 +1,24 @@
 const PUZZLE_BANK = [
-    {
-        answer: "MICROWAVE",
-        aliases: ["MICROWAVE OVEN"],
-        clues: [
-            "I spin my contents in a circle while working.",
-            "I have a windowed door that lets you watch.",
-            "I beep loudly when my job is finished.",
-            "I live on most kitchen counters.",
-            "Metal objects inside me cause dangerous sparks.",
-            "I reheat yesterday's leftovers in seconds."
-        ]
-    },
-    {
-        answer: "CACTUS",
-        aliases: ["CACTI"],
-        clues: [
-            "I store water inside my thick green body.",
-            "Touching me without gloves is a painful mistake.",
-            "I thrive in dry, scorching desert climates.",
-            "People often keep tiny versions of me on windowsills.",
-            "I rarely need to be watered.",
-            "I occasionally bloom bright flowers."
-        ]
-    },
-    {
-        answer: "COMPASS",
-        aliases: ["MAGNETIC COMPASS"],
-        clues: [
-            "My needle constantly points in one specific direction.",
-            "Hikers and sailors rely on me when GPS fails.",
-            "I react to Earth's invisible magnetic field.",
-            "I have N, S, E, and W printed on my face.",
-            "Holding a magnet near me ruins my accuracy.",
-            "I fit easily inside a pocket."
-        ]
-    }
+    { answer: "MICROWAVE", aliases: ["MICROWAVE OVEN"], clues: ["I spin contents in a circle while working.", "I have a windowed door that lets you watch.", "I beep loudly when finished.", "I live on kitchen counters.", "Metal objects inside me cause sparks.", "I reheat leftovers in seconds."] },
+    { answer: "CACTUS", aliases: ["CACTI"], clues: ["I store water inside my thick green body.", "Touching me without gloves is painful.", "I thrive in scorching desert climates.", "People keep tiny versions on windowsills.", "I rarely need watering.", "I bloom bright flowers."] },
+    { answer: "COMPASS", aliases: ["MAGNETIC COMPASS"], clues: ["My needle constantly points north.", "Hikers rely on me when GPS fails.", "I react to Earth's magnetic field.", "I have N, S, E, W on my face.", "Holding a magnet ruins my accuracy.", "I fit inside a pocket."] },
+    { answer: "PIANO", aliases: ["GRAND PIANO", "KEYBOARD"], clues: ["I have 88 black and white keys.", "Felt hammers strike my metal strings inside.", "I usually have three pedals underneath.", "Classical masters played me.", "Moving me requires a heavy crew.", "I make music without wall power."] },
+    { answer: "SUBMARINE", aliases: ["SUB"], clues: ["I operate deep underwater beneath waves.", "I have a periscope to scan horizons.", "I use ballast tanks to submerge and surface.", "Naval officers live inside me for months.", "Sonar helps me navigate in total darkness.", "I am powered by nuclear reactors."] },
+    { answer: "TELESCOPE", aliases: ["SPYGLASS"], clues: ["I make distant stars and planets look closer.", "I use curved glass lenses or large mirrors.", "Astronomers mount me in high altitude observatories.", "You peer through my eyepiece at night.", "I helped discover distant galaxies.", "I sit on a sturdy tripod."] },
+    { answer: "CHAMELEON", aliases: ["LIZARD"], clues: ["I change my skin color to match surroundings.", "My eyes can look in two different directions at once.", "I catch insects with a lightning-fast sticky tongue.", "I live high up in tropical trees.", "I have a prehensile tail for gripping branches.", "I move very slowly and cautiously."] },
+    { answer: "ESPRESSO MACHINE", aliases: ["COFFEE MAKER", "ESPRESSO"], clues: ["I force hot water through tight coffee grounds.", "I brew concentrated shots with golden crema on top.", "I have a steam wand to froth milk for lattes.", "I hiss and rumble during operation.", "I live on café counters everywhere.", "I wake people up every morning."] },
+    { answer: "LIGHTHOUSE", aliases: ["BEACON"], clues: ["I stand tall on rocky shorelines to guide ships.", "I flash a powerful beam of light out to sea.", "Keepers historically lived inside my base.", "I warn sailors away from dangerous shallow reefs.", "My top houses a giant rotating lens.", "I weather heavy coastal storms."] },
+    { answer: "HOURGLASS",aliases: ["SANDGLASS", "TIMER"], clues: ["I measure short spans of time using falling powder.", "I consist of two connected glass bulbs.", "You have to flip me upside down to restart.", "I contain thousands of tiny grains of quartz.", "I am completely silent while running.", "Board games often use me."] },
+    { answer: "GRAMOPHONE", aliases: ["RECORD PLAYER", "TURNTABLE"], clues: ["I play analog sound from vinyl discs.", "I feature a large metal acoustic horn.", "A tiny diamond needle rides my spinning grooves.", "You have to wind up my spring motor.", "I bring vintage music to life.", "I spin at 33 or 45 RPM."] },
+    { answer: "TYPEWRITER", aliases: ["KEYBOARD"], clues: ["I stamp ink characters directly onto paper sheets.", "Every keystroke flips a physical metal hammer.", "I have a noisy return lever for new lines.", "Authors and reporters used me for decades.", "My ribbons require ink replacement.", "I make a satisfying clacking rhythm."] },
+    { answer: "HOT AIR BALLOON", aliases: ["BALLOON"], clues: ["I float gracefully through the open sky.", "A massive propane burner heats air inside my envelope.", "Passengers ride inside a woven wicker basket.", "I drift wherever the wind carries me.", "I launch during early morning calm weather.", "I require a ground chase crew."] },
+    { answer: "SNOWGLOBE", aliases: ["SNOW GLOBE"], clues: ["I feature a miniature scene enclosed in glass.", "Shaking me creates a blizzard of white flakes.", "I sit on winter holiday shelves.", "Water suspends my floating glitter snow.", "I often play a music box tune underneath.", "I capture cozy memories."] },
+    { answer: "HARMONICA", aliases: ["MOUTH ORGAN"], clues: ["I fit entirely inside your hands or pocket.", "You play me by blowing and drawing air through slots.", "Metal reeds vibrate inside my comb channels.", "Blues and folk musicians love my sound.", "I require zero electrical cables.", "I have distinct numbered holes."] },
+    { answer: "BINOCULARS", aliases: ["FIELD GLASSES"], clues: ["I give magnified stereoscopic vision for both eyes.", "You adjust my central focus wheel to sharpen sights.", "Bird watchers and sports fans wear me around necks.", "I combine two side-by-side refracting scopes.", "I fold to fit your eye width.", "I reveal distant details."] },
+    { answer: "PINATA", aliases: ["PARTY PINATA"], clues: ["I am a hollow paper-mâché figure packed with treats.", "Party guests take turns striking me blindfolded.", "I burst open to shower candy everywhere.", "I hang from tree branches or ceilings.", "I am decorated in bright colorful tissue paper.", "Birthday celebrations feature me."] },
+    { answer: "LANTERN", aliases: ["OIL LANTERN"], clues: ["I provide portable light enclosed in glass panels.", "A fabric wick draws fuel from a lower basin.", "Campers and hikers carry me after dark.", "I protect an open flame from wind gusts.", "I have a metal hanging bail handle.", "I give off a warm glowing ambiance."] },
+    { answer: "STETHOSCOPE", aliases: ["DOCTOR SCOPE"], clues: ["I let medical professionals listen to heartbeats.", "I feature rubber tubing connected to earpieces.", "My chest piece uses a diaphragm resonator.", "Doctors wear me draped around their necks.", "I amplify subtle internal lung sounds.", "I diagnose patient conditions."] },
+    { answer: "METRONOME", aliases: ["TEMPO KEEPER"], clues: ["I keep strict musical timing with a swinging pendulum.", "I tick back and forth at precise BPM speeds.", "Musicians practice alongside my steady beat.", "You slide my weighted pendulum up or down.", "I have an audible mechanical click.", "Piano teachers keep me on hand."] }
 ];
 
 let currentMode = 'daily';
@@ -62,62 +46,54 @@ function playClick() {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    osc.connect(gain); gain.connect(audioCtx.destination);
     const now = audioCtx.currentTime;
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(450, now);
-    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
-    osc.start(now);
-    osc.stop(now + 0.05);
+    osc.frequency.setValueAtTime(500, now);
+    osc.frequency.exponentialRampToValueAtTime(250, now + 0.04);
+    gain.gain.setValueAtTime(0.08, now);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.04);
+    osc.start(now); osc.stop(now + 0.04);
 }
 
 function playSound(type) {
     if (!soundEnabled) return;
     initAudio();
     if (!audioCtx) return;
-
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    osc.connect(gain); gain.connect(audioCtx.destination);
     const now = audioCtx.currentTime;
 
     if (type === 'flip') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(240, now);
-        osc.frequency.exponentialRampToValueAtTime(480, now + 0.09);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.09);
-        osc.start(now);
-        osc.stop(now + 0.09);
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now); osc.stop(now + 0.08);
     } else if (type === 'burn_lie') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(650, now + 0.3);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now); osc.stop(now + 0.25);
     } else if (type === 'burn_truth') {
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(300, now);
-        osc.frequency.linearRampToValueAtTime(60, now + 0.3);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now); osc.stop(now + 0.25);
     } else if (type === 'win') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(330, now);
+        osc.frequency.setValueAtTime(350, now);
         osc.frequency.setValueAtTime(440, now + 0.1);
-        osc.frequency.setValueAtTime(550, now + 0.2);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-        osc.start(now);
-        osc.stop(now + 0.4);
+        osc.frequency.setValueAtTime(580, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now); osc.stop(now + 0.35);
     }
 }
 
@@ -156,32 +132,30 @@ function shuffleWithRng(array, rng) {
 
 function updateMenuStats() {
     const dayIdx = Math.abs(getDayIndex());
-    document.getElementById('menu-daily-num').innerText = dayIdx + 1;
+    document.getElementById('menu-daily-num').innerText = (dayIdx % PUZZLE_BANK.length) + 1;
     const streakVal = localStorage.getItem('smokescreen_streak') || '0';
     const winsVal = localStorage.getItem('smokescreen_wins') || '0';
 
     document.getElementById('menu-streak').innerText = streakVal;
     document.getElementById('acc-streak').innerText = streakVal;
     document.getElementById('acc-wins').innerText = winsVal;
-    document.getElementById('footer-streak-info').innerText = `Streak: ${streakVal}`;
 
     const isDailyDone = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
     const dailyBtn = document.getElementById('btn-play-daily');
     if (isDailyDone) {
         dailyBtn.classList.add('locked');
-        dailyBtn.querySelector('.hero-btn-text').innerText = "✔ DAILY COMPLETED (LOCKED)";
+        dailyBtn.querySelector('.btn-title').innerText = "Daily Completed";
+        dailyBtn.querySelector('.btn-sub').innerText = "Come back tomorrow for new puzzle";
     }
 }
 
 function checkAuthSession() {
-    const username = localStorage.getItem('smokescreen_user');
-    if (username) {
-        document.getElementById('nav-username').innerText = username;
-        document.getElementById('profile-name').innerText = username;
+    const user = localStorage.getItem('smokescreen_user');
+    if (user) {
+        document.getElementById('profile-name').innerText = user;
         document.getElementById('auth-logged-out').classList.add('hidden');
         document.getElementById('auth-logged-in').classList.remove('hidden');
     } else {
-        document.getElementById('nav-username').innerText = "Account";
         document.getElementById('auth-logged-out').classList.remove('hidden');
         document.getElementById('auth-logged-in').classList.add('hidden');
     }
@@ -189,14 +163,8 @@ function checkAuthSession() {
 
 function handleLogin() {
     const user = document.getElementById('auth-user-input').value.trim();
-    if (!user) { alert("Please enter a valid username."); return; }
+    if (!user) { alert("Enter username."); return; }
     localStorage.setItem('smokescreen_user', user);
-    checkAuthSession();
-    closeModal('account-modal');
-}
-
-function handleGoogleLogin() {
-    localStorage.setItem('smokescreen_user', 'GoogleUser_atomicButter');
     checkAuthSession();
     closeModal('account-modal');
 }
@@ -207,8 +175,8 @@ function handleLogout() {
     closeModal('account-modal');
 }
 
-function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
-function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 function toggleInstructions(show) { document.getElementById('instructions-modal').classList.toggle('hidden', !show); }
 
 function toggleAudio() {
@@ -218,8 +186,7 @@ function toggleAudio() {
 
 function toggleTheme() {
     const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 }
 
 function returnToMenu() {
@@ -235,12 +202,12 @@ function returnToMenu() {
 function startDailyGame() {
     const dayIdx = Math.abs(getDayIndex());
     if (localStorage.getItem('smokescreen_daily_done') === String(dayIdx)) {
-        alert("Daily puzzle already completed for today! Try Arcade mode.");
+        alert("Daily already finished today! Try Arcade mode.");
         return;
     }
     currentMode = 'daily';
     const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
-    setupBoard(puzzleObj, mulberry32(dayIdx + 99), `DAILY #${dayIdx + 1}`, 2);
+    setupBoard(puzzleObj, mulberry32(dayIdx + 99), `DAILY #${(dayIdx % PUZZLE_BANK.length) + 1}`, 2);
 }
 
 function startArcadeGame(diff) {
@@ -281,7 +248,7 @@ function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
     renderCards();
     updateHUD();
     startTimer();
-    setStatus("Dealt! Flip cards and deduce the target.");
+    setStatus("Dealt! Tap cards to inspect clues.");
 }
 
 function startTimer() {
@@ -306,16 +273,16 @@ function renderCards() {
 
         let bottomAction = '';
         if (card.flipped && !card.burned && !gameOver) {
-            bottomAction = `<button class="burn-btn" onclick="playClick(); burnCard(event, ${index})">🔥 BURN</button>`;
+            bottomAction = `<button class="burn-action-btn" onclick="burnCard(event, ${index})">Burn Lie</button>`;
         } else if (card.burned) {
-            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px; font-weight:700;">🔥 INCINERATED</div>`;
+            bottomAction = `<div style="font-size:11px; font-weight:700; color:var(--danger)">Purged</div>`;
         }
 
         slot.innerHTML = `
             <div class="card-inner">
                 <div class="card-face card-back">
-                    <span class="card-number">#0${index + 1}</span>
-                    <span class="card-qmark">?</span>
+                    <span class="card-num">#0${index + 1}</span>
+                    <span class="card-q">?</span>
                 </div>
                 <div class="card-face card-front">
                     <p class="clue-text">${card.text}</p>
@@ -332,10 +299,10 @@ function flipCard(event, index) {
     if (gameOver || deck[index].flipped || deck[index].burned) return;
     deck[index].flipped = true; flipsCount++;
     playSound('flip');
-    spawnParticles(event.clientX || 400, event.clientY || 300, '#00f0ff');
+    spawnParticles(event.clientX || window.innerWidth/2, event.clientY || window.innerHeight/2, '#38bdf8');
     const activeFlips = deck.filter(c => c.flipped && !c.burned).length;
     if (activeFlips > 1) score = Math.max(100, score - 80);
-    setStatus(activeFlips === 1 ? "First clue inspection is free!" : "Clue inspected (-80 pts).");
+    setStatus(activeFlips === 1 ? "First inspection is free!" : "Clue inspected (-80 pts).");
     renderCards(); updateHUD();
 }
 
@@ -343,21 +310,20 @@ function burnCard(event, index) {
     event.stopPropagation();
     if (gameOver || burnsLeft <= 0 || deck[index].burned) return;
     burnsLeft--; deck[index].burned = true; deck[index].burning = true;
-    triggerShake();
 
     if (deck[index].isLie) {
         score += 200; liesCaught++;
         playSound('burn_lie');
-        spawnParticles(event.clientX, event.clientY, '#f59e0b');
-        setStatus("Success! Smokescreen incinerated (+200 pts)!", "#10b981");
+        spawnParticles(event.clientX, event.clientY, '#34d399');
+        setStatus("Smokescreen purged successfully (+200 pts)!", "var(--success)");
     } else {
         score = Math.max(50, score - 200);
         playSound('burn_truth');
-        spawnParticles(event.clientX, event.clientY, '#ef4444');
-        setStatus("Mistake! You incinerated a real clue (-200 pts)!", "#ef4444");
+        spawnParticles(event.clientX, event.clientY, '#f87171');
+        setStatus("Mistake! Purged a real clue (-200 pts)!", "var(--danger)");
     }
     renderCards();
-    setTimeout(() => { deck[index].removed = true; renderCards(); }, 550);
+    setTimeout(() => { deck[index].removed = true; renderCards(); }, 450);
     updateHUD();
 }
 
@@ -370,9 +336,9 @@ function submitGuess() {
         playSound('win'); endRound(true);
     } else {
         guessesLeft--; score = Math.max(50, score - 200);
-        triggerShake(); input.value = ''; updateHUD();
+        input.value = ''; updateHUD();
         if (guessesLeft <= 0) endRound(false);
-        else setStatus(`Incorrect! ${guessesLeft} tries left (-200 pts).`, "#ef4444");
+        else setStatus(`Incorrect! ${guessesLeft} tries left (-200 pts).`, "var(--danger)");
     }
 }
 
@@ -394,12 +360,11 @@ function endRound(won) {
 
     let rank = !won ? 'F' : score >= 900 ? 'S' : score >= 700 ? 'A' : score >= 500 ? 'B' : 'C';
     const modal = document.getElementById('end-modal');
-    document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "INVESTIGATION FAILED";
-    document.getElementById('end-icon').innerText = won ? "🏆" : "💀";
-    document.getElementById('end-final-score').innerText = `${score} PTS`;
-    document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
+    document.getElementById('modal-title').innerText = won ? "Case Solved!" : "Investigation Failed";
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
-    document.getElementById('modal-stats').innerText = won ? `Flips used: ${flipsCount} • Smokescreens purged: ${liesCaught}` : `Target evaded capture.`;
+    document.getElementById('end-final-score').innerText = `${score} PTS`;
+    document.getElementById('rank-badge').innerText = `RANK: ${rank}`;
+    document.getElementById('modal-stats').innerText = won ? `Flips: ${flipsCount} • Lies caught: ${liesCaught}` : `Target escaped.`;
     modal.classList.remove('hidden');
 }
 
@@ -407,44 +372,35 @@ function updateHUD() {
     document.getElementById('hud-score').innerText = score;
     document.getElementById('hud-guesses').innerText = guessesLeft;
     document.getElementById('hud-burns').innerText = burnsLeft;
-    document.getElementById('hud-time').innerText = timeLeft;
-    const timerFill = document.getElementById('timer-fill');
-    timerFill.style.width = `${(timeLeft / 45) * 100}%`;
-    timerFill.style.backgroundColor = timeLeft < 15 ? '#ef4444' : 'var(--accent-cyan)';
+    document.getElementById('hud-time').innerText = timeLeft + 's';
+    document.getElementById('timer-fill').style.width = `${(timeLeft / 45) * 100}%`;
 }
 
 function setStatus(msg, color = "") {
     const banner = document.getElementById('status-banner');
-    if(color) banner.style.color = color;
+    banner.style.borderLeftColor = color || 'var(--primary)';
     banner.innerText = msg;
-}
-
-function triggerShake() {
-    const wrapper = document.getElementById('game-wrapper');
-    wrapper.classList.remove('shake');
-    void wrapper.offsetWidth;
-    wrapper.classList.add('shake');
 }
 
 function spawnParticles(x, y, color) {
     const container = document.getElementById('particle-container');
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 10; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.left = `${x}px`; p.style.top = `${y}px`;
         p.style.backgroundColor = color;
-        const angle = (Math.PI * 2 * i) / 14, dist = 40 + Math.random() * 40;
+        const angle = (Math.PI * 2 * i) / 10, dist = 30 + Math.random() * 30;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
         container.appendChild(p);
-        setTimeout(() => p.remove(), 500);
+        setTimeout(() => p.remove(), 400);
     }
 }
 
 function copyShareText() {
     navigator.clipboard.writeText(`SMOKESCREEN | Score: ${score} PTS`).then(() => {
         const btn = document.getElementById('btn-share');
-        btn.innerText = "✔ COPIED!";
-        setTimeout(() => btn.innerText = "📋 Copy Score", 2000);
+        btn.innerText = "Copied!";
+        setTimeout(() => btn.innerText = "Copy Score", 2000);
     });
 }
