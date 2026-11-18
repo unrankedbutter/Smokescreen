@@ -15,35 +15,37 @@
 
     <div class="game-wrapper" id="game-wrapper">
         
-        <!-- TOP NAVBAR (Global Quick Actions) -->
+        <!-- TOP ARCADE NAV BAR -->
         <nav class="top-nav pixel-box" id="top-nav">
-            <div class="nav-brand" onclick="returnToMenu()">🔥 SMOKESCREEN</div>
+            <div class="nav-brand" onclick="returnToMenu()">[ 🔥 ] SMOKESCREEN</div>
             <div class="nav-actions">
-                <button class="pixel-btn btn-small" onclick="openModal('shop-modal')">🛍️ SHOP</button>
-                <button class="pixel-btn btn-small" onclick="openModal('account-modal')">👤 ACCOUNT</button>
-                <button class="pixel-btn btn-small" onclick="openModal('settings-modal')">⚙️ SETTINGS</button>
+                <button class="pixel-btn btn-small" onclick="openModal('shop-modal')">[ 🛒 ] SHOP</button>
+                <button class="pixel-btn btn-small" onclick="openModal('account-modal')">[ 👤 ] ACCOUNT</button>
+                <button class="pixel-btn btn-small" onclick="openModal('settings-modal')">[ ⚙️ ] SETTINGS</button>
             </div>
         </nav>
 
         <!-- MAIN MENU SCREEN -->
         <div id="main-menu" class="screen active-screen">
-            <div class="pixel-box menu-box">
-                <div class="menu-header">
-                    <span class="flame-icon">🔥</span>
+            <div class="menu-hero-container">
+                <div class="menu-title-block">
+                    <span class="flame-icon">⚡</span>
                     <h1 class="glow-title">SMOKESCREEN</h1>
-                    <span class="flame-icon">🔥</span>
+                    <span class="flame-icon">⚡</span>
                 </div>
                 <p class="menu-subtitle">HIGH-STAKES DEDUCTION & DECEPTION</p>
-                
+            </div>
+
+            <div class="pixel-box menu-panel">
                 <div class="menu-stats-preview">
                     <span>STREAK: <strong id="menu-streak">0</strong></span>
                     <span>DAILY #<span id="menu-daily-num">1</span></span>
                 </div>
 
                 <div class="menu-btn-group">
-                    <button id="btn-play-daily" class="pixel-btn btn-huge btn-accent" onclick="startDailyGame()">▶ PLAY DAILY PUZZLE</button>
-                    <button class="pixel-btn btn-huge" onclick="openModal('difficulty-modal')">🕹️ ARCADE MODE</button>
-                    <button class="pixel-btn btn-huge" onclick="toggleInstructions(true)">📜 HOW TO PLAY</button>
+                    <button id="btn-play-daily" class="pixel-btn btn-huge btn-accent" onclick="startDailyGame()">[ ▶ ] PLAY DAILY PUZZLE</button>
+                    <button class="pixel-btn btn-huge" onclick="openModal('difficulty-modal')">[ 🕹️ ] ARCADE MODE</button>
+                    <button class="pixel-btn btn-huge" onclick="toggleInstructions(true)">[ 📜 ] HOW TO PLAY</button>
                 </div>
             </div>
         </div>
@@ -51,12 +53,12 @@
         <!-- DIFFICULTY SELECTOR MODAL (Arcade) -->
         <div id="difficulty-modal" class="modal hidden">
             <div class="modal-content pixel-box">
-                <h2>SELECT ARCADE DIFFICULTY</h2>
+                <h2>SELECT DIFFICULTY</h2>
                 <div class="difficulty-options">
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('easy')">🟢 EASY (2 LIES)</button>
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('medium')">🟡 MEDIUM (4 LIES)</button>
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('hard')">🟠 HARD (5 LIES)</button>
-                    <button class="pixel-btn btn-diff btn-danger" onclick="startArcadeGame('extreme')">🔴 EXTREME (6 LIES)</button>
+                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('easy')">[ 🟢 ] EASY (2 LIES)</button>
+                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('medium')">[ 🟡 ] MEDIUM (4 LIES)</button>
+                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('hard')">[ 🟠 ] HARD (5 LIES)</button>
+                    <button class="pixel-btn btn-diff btn-danger" onclick="startArcadeGame('extreme')">[ 🔴 ] EXTREME (6 LIES)</button>
                 </div>
                 <button class="pixel-btn" onclick="closeModal('difficulty-modal')">CANCEL</button>
             </div>
@@ -67,9 +69,9 @@
             <!-- Header Bar -->
             <header class="pixel-box header-bar">
                 <div class="header-top">
-                    <button class="pixel-btn btn-small" onclick="returnToMenu()">◀ MENU</button>
+                    <button class="pixel-btn btn-small" onclick="returnToMenu()">[ ◀ ] MENU</button>
                     <span id="game-mode-badge" class="mode-badge">DAILY #1</span>
-                    <span class="sound-toggle" onclick="toggleAudio()">🔊 FX</span>
+                    <span class="sound-toggle" onclick="toggleAudio()">[ 🔊 ] FX</span>
                 </div>
                 <div class="timer-track">
                     <div id="timer-fill" class="timer-fill"></div>
@@ -115,13 +117,13 @@
             </section>
         </div>
 
-        <!-- SHOP MODAL (Placeholder) -->
+        <!-- SHOP MODAL -->
         <div id="shop-modal" class="modal hidden">
             <div class="modal-content pixel-box">
-                <h2>SMOKESCREEN SHOP</h2>
-                <p class="modal-desc">Unlock custom card skins, glowing borders, and special abilities using Arcade tokens.</p>
+                <h2>[ 🛒 ] INVENTORY SHOP</h2>
+                <p class="modal-desc">Unlock custom card skins, backgrounds, and active abilities using arcade tokens.</p>
                 <div class="shop-placeholder-box">
-                    <p>🚧 SHOP INVENTORY COMING SOON 🚧</p>
+                    <p>[ 🚧 ] SHOP ITEMS COMING SOON [ 🚧 ]</p>
                 </div>
                 <button class="pixel-btn btn-accent" onclick="closeModal('shop-modal')">CLOSE</button>
             </div>
@@ -130,12 +132,12 @@
         <!-- ACCOUNT MODAL -->
         <div id="account-modal" class="modal hidden">
             <div class="modal-content pixel-box">
-                <h2>PLAYER PROFILE</h2>
+                <h2>[ 👤 ] PLAYER PROFILE</h2>
                 <div class="account-details">
                     <p><strong>ALIAS:</strong> atomicButter</p>
-                    <p><strong>TOTAL GAMES WON:</strong> <span id="acc-wins">0</span></p>
-                    <p><strong>CURRENT STREAK:</strong> <span id="acc-streak">0</span></p>
-                    <p><strong>ARCADE TOKENS:</strong> 🪙 250</p>
+                    <p><strong>TOTAL WINS:</strong> <span id="acc-wins">0</span></p>
+                    <p><strong>STREAK:</strong> <span id="acc-streak">0</span></p>
+                    <p><strong>TOKENS:</strong> 🪙 250</p>
                 </div>
                 <button class="pixel-btn btn-accent" onclick="closeModal('account-modal')">CLOSE</button>
             </div>
@@ -144,15 +146,15 @@
         <!-- SETTINGS MODAL -->
         <div id="settings-modal" class="modal hidden">
             <div class="modal-content pixel-box">
-                <h2>SETTINGS</h2>
+                <h2>[ ⚙️ ] GAME SETTINGS</h2>
                 <div class="settings-options">
                     <div class="setting-row">
                         <span>THEME MODE</span>
-                        <button class="pixel-btn btn-small" onclick="toggleTheme()">☀️ / 🌙 TOGGLE</button>
+                        <button class="pixel-btn btn-small" onclick="toggleTheme()">[ ☀️ / 🌙 ] TOGGLE</button>
                     </div>
                     <div class="setting-row">
                         <span>SOUND FX</span>
-                        <button class="pixel-btn btn-small" onclick="toggleAudio()">🔊 TOGGLE</button>
+                        <button class="pixel-btn btn-small" onclick="toggleAudio()">[ 🔊 ] TOGGLE</button>
                     </div>
                 </div>
                 <button class="pixel-btn btn-accent" onclick="closeModal('settings-modal')">SAVE & CLOSE</button>
@@ -162,12 +164,12 @@
         <!-- HOW TO PLAY MODAL -->
         <div id="instructions-modal" class="modal hidden">
             <div class="modal-content pixel-box">
-                <h2>HOW TO PLAY</h2>
+                <h2>[ 📜 ] HOW TO PLAY</h2>
                 <div class="instructions-body">
-                    <p>🎯 <strong>THE GOAL:</strong> Deduce the secret word using the clues.</p>
-                    <p>🃏 <strong>CARDS:</strong> Uncover clues while dodging hidden Smokescreens (Lies)!</p>
-                    <p>🔥 <strong>BURN ABILITY:</strong> Suspect a lie? Hit <strong>BURN</strong> to incinerate it in real flames.</p>
-                    <p>⏱️ <strong>TIME PRESSURE:</strong> Beat the timer before your points drain away!</p>
+                    <p>🎯 <strong>THE GOAL:</strong> Deduce the secret word using clues.</p>
+                    <p>🃏 <strong>CARDS:</strong> Uncover cards while dodging hidden Smokescreens (Lies).</p>
+                    <p>🔥 <strong>BURN ABILITY:</strong> Suspect a lie? Hit <strong>BURN</strong> to incinerate it.</p>
+                    <p>⏱️ <strong>TIME PRESSURE:</strong> Beat the timer before points drain away!</p>
                 </div>
                 <button class="pixel-btn btn-accent" onclick="toggleInstructions(false)">GOT IT</button>
             </div>
@@ -177,7 +179,7 @@
         <div id="end-modal" class="modal hidden">
             <div class="modal-content pixel-box end-modal-box">
                 <div class="end-header">
-                    <span id="end-icon" class="end-icon">🏆</span>
+                    <span id="end-icon" class="end-icon">[ 🏆 ]</span>
                     <h2 id="modal-title">CASE SOLVED</h2>
                 </div>
                 
@@ -194,7 +196,7 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button id="btn-share" class="pixel-btn btn-accent" onclick="copyShareText()">📋 COPY SCORE</button>
+                    <button id="btn-share" class="pixel-btn btn-accent" onclick="copyShareText()">[ 📋 ] COPY SCORE</button>
                     <button class="pixel-btn" onclick="returnToMenu()">MAIN MENU</button>
                 </div>
             </div>
