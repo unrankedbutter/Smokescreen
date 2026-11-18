@@ -9,14 +9,6 @@ const PUZZLE_BANK = [
             "I live on most kitchen counters.",
             "Metal objects inside me cause dangerous sparks.",
             "I reheat yesterday's leftovers in seconds."
-        ],
-        lies: [
-            "I require charcoal or wood chips to operate.",
-            "I am primarily used to freeze liquids solid.",
-            "I require gasoline to start up each morning.",
-            "I fold laundry automatically when closed.",
-            "I project holograms onto your kitchen ceiling.",
-            "I print receipts every time you cook."
         ]
     },
     {
@@ -29,14 +21,6 @@ const PUZZLE_BANK = [
             "People often keep tiny versions of me on windowsills.",
             "I rarely need to be watered.",
             "I occasionally bloom bright flowers."
-        ],
-        lies: [
-            "I shed thousands of autumn leaves every October.",
-            "I swim upstream to lay my eggs.",
-            "I grow feathers instead of spines.",
-            "I produce fresh apple juice when squeezed.",
-            "I require freezing snow to survive.",
-            "I glow neon blue at midnight."
         ]
     },
     {
@@ -49,14 +33,6 @@ const PUZZLE_BANK = [
             "I have N, S, E, and W printed on my face.",
             "Holding a magnet near me ruins my accuracy.",
             "I fit easily inside a pocket."
-        ],
-        lies: [
-            "I measure the temperature of boiling water.",
-            "I need to be plugged into a wall outlet to charge.",
-            "I dispense hot coffee on demand.",
-            "I project movies onto bedroom walls.",
-            "I predict tomorrow's lottery numbers.",
-            "I bake bread using solar power."
         ]
     }
 ];
@@ -75,9 +51,28 @@ let soundEnabled = true;
 let flipsCount = 0;
 let liesCaught = 0;
 
+// Web Audio API Synthesis for Click, Flip, and Burn FX
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playClick() {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.05);
 }
 
 function playSound(type) {
@@ -93,24 +88,24 @@ function playSound(type) {
 
     if (type === 'flip') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(220, now);
-        osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(480, now + 0.09);
         gain.gain.setValueAtTime(0.15, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.09);
         osc.start(now);
-        osc.stop(now + 0.08);
+        osc.stop(now + 0.09);
     } else if (type === 'burn_lie') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(650, now + 0.3);
         gain.gain.setValueAtTime(0.2, now);
         gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
         osc.stop(now + 0.3);
     } else if (type === 'burn_truth') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(280, now);
-        osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.3);
         gain.gain.setValueAtTime(0.2, now);
         gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
@@ -129,6 +124,7 @@ function playSound(type) {
 
 window.onload = () => {
     updateMenuStats();
+    checkAuthSession();
     document.getElementById('guess-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') submitGuess();
     });
@@ -173,8 +169,46 @@ function updateMenuStats() {
     const dailyBtn = document.getElementById('btn-play-daily');
     if (isDailyDone) {
         dailyBtn.classList.add('locked');
-        dailyBtn.innerHTML = "[ ✔ ] DAILY COMPLETED (LOCKED)";
+        dailyBtn.innerHTML = "✔ DAILY COMPLETED (LOCKED)";
     }
+}
+
+// Account Authentication Logic
+function checkAuthSession() {
+    const username = localStorage.getItem('smokescreen_user');
+    if (username) {
+        document.getElementById('nav-username').innerText = username;
+        document.getElementById('profile-name').innerText = username;
+        document.getElementById('auth-logged-out').classList.add('hidden');
+        document.getElementById('auth-logged-in').classList.remove('hidden');
+    } else {
+        document.getElementById('nav-username').innerText = "Account";
+        document.getElementById('auth-logged-out').classList.remove('hidden');
+        document.getElementById('auth-logged-in').classList.add('hidden');
+    }
+}
+
+function handleLogin() {
+    const user = document.getElementById('auth-user-input').value.trim();
+    if (!user) {
+        alert("Please enter a valid username.");
+        return;
+    }
+    localStorage.setItem('smokescreen_user', user);
+    checkAuthSession();
+    closeModal('account-modal');
+}
+
+function handleGoogleLogin() {
+    localStorage.setItem('smokescreen_user', 'GoogleUser_atomicButter');
+    checkAuthSession();
+    closeModal('account-modal');
+}
+
+function handleLogout() {
+    localStorage.removeItem('smokescreen_user');
+    checkAuthSession();
+    closeModal('account-modal');
 }
 
 function openModal(modalId) {
@@ -191,7 +225,7 @@ function toggleInstructions(show) {
 
 function toggleAudio() {
     soundEnabled = !soundEnabled;
-    document.querySelector('.sound-toggle').innerText = soundEnabled ? "[ 🔊 ] FX" : "[ 🔇 ] FX";
+    document.getElementById('audio-icon').innerText = soundEnabled ? "🔊" : "🔇";
 }
 
 function toggleTheme() {
@@ -262,7 +296,15 @@ function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
     document.getElementById('game-screen').classList.remove('hidden');
     document.getElementById('game-screen').classList.add('active-screen');
 
-    const shuffledLies = shuffleWithRng(puzzleObj.lies, rng).slice(0, lieCount);
+    // Generate dynamic cross-clues from other words as Smokescreen lies
+    let allOtherClues = [];
+    PUZZLE_BANK.forEach(p => {
+        if (p.answer !== puzzleObj.answer) {
+            allOtherClues.push(...p.clues);
+        }
+    });
+
+    const shuffledLies = shuffleWithRng(allOtherClues, rng).slice(0, lieCount);
     const trueCluesNeeded = 8 - lieCount;
     const shuffledClues = shuffleWithRng(puzzleObj.clues, rng).slice(0, trueCluesNeeded);
 
@@ -275,7 +317,7 @@ function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
     renderCards();
     updateHUD();
     startTimer();
-    setStatus("DEALT! FLIP CARDS AND DEDUCE THE TARGET.");
+    setStatus("Dealt! Flip cards and deduce the target.");
 }
 
 function startTimer() {
@@ -305,9 +347,9 @@ function renderCards() {
 
         let bottomAction = '';
         if (card.flipped && !card.burned && !gameOver) {
-            bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">[ 🔥 ] BURN</button>`;
+            bottomAction = `<button class="burn-btn" onclick="playClick(); burnCard(event, ${index})">🔥 BURN</button>`;
         } else if (card.burned) {
-            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px;">[ 🔥 ] INCINERATED</div>`;
+            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px; font-weight:700;">🔥 INCINERATED</div>`;
         }
 
         slot.innerHTML = `
@@ -323,7 +365,11 @@ function renderCards() {
             </div>
         `;
 
-        slot.onclick = (e) => flipCard(e, index);
+        slot.onclick = (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                flipCard(e, index);
+            }
+        };
         grid.appendChild(slot);
     });
 }
@@ -334,12 +380,12 @@ function flipCard(event, index) {
     deck[index].flipped = true;
     flipsCount++;
     playSound('flip');
-    spawnParticles(event.clientX, event.clientY, '#00f0ff');
+    spawnParticles(event.clientX || window.innerWidth/2, event.clientY || window.innerHeight/2, '#00f0ff');
 
     const activeFlips = deck.filter(c => c.flipped && !c.burned).length;
     if (activeFlips > 1) score = Math.max(100, score - 80);
 
-    setStatus(activeFlips === 1 ? "FIRST FLIP FREE!" : "CLUE INSPECTED (-80 PTS).");
+    setStatus(activeFlips === 1 ? "First clue inspection is free!" : "Clue inspected (-80 pts).");
     renderCards();
     updateHUD();
 }
@@ -357,13 +403,13 @@ function burnCard(event, index) {
         score += 200;
         liesCaught++;
         playSound('burn_lie');
-        spawnParticles(event.clientX, event.clientY, '#ffaa00');
-        setStatus("SUCCESS! SMOKESCREEN INCINERATED (+200 PTS)!", "#2ce865");
+        spawnParticles(event.clientX, event.clientY, '#f59e0b');
+        setStatus("Success! Smokescreen incinerated (+200 pts)!", "#10b981");
     } else {
         score = Math.max(50, score - 200);
         playSound('burn_truth');
-        spawnParticles(event.clientX, event.clientY, '#ff2a55');
-        setStatus("MISTAKE! YOU INCINERATED A REAL CLUE (-200 PTS)!", "#ff2a55");
+        spawnParticles(event.clientX, event.clientY, '#ef4444');
+        setStatus("Mistake! You incinerated a real clue (-200 pts)!", "#ef4444");
     }
 
     renderCards();
@@ -397,7 +443,7 @@ function submitGuess() {
         if (guessesLeft <= 0) {
             endRound(false);
         } else {
-            setStatus(`WRONG! ${guessesLeft} TRIES LEFT (-200 PTS).`, "#ff2a55");
+            setStatus(`Incorrect! ${guessesLeft} tries left (-200 pts).`, "#ef4444");
         }
     }
 }
@@ -435,7 +481,7 @@ function endRound(won) {
 
     const modal = document.getElementById('end-modal');
     document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "INVESTIGATION FAILED";
-    document.getElementById('end-icon').innerText = won ? "[ 🏆 ]" : "[ 💀 ]";
+    document.getElementById('end-icon').innerText = won ? "🏆" : "💀";
     document.getElementById('end-final-score').innerText = `${score} PTS`;
     document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
@@ -455,7 +501,7 @@ function updateHUD() {
     const timerFill = document.getElementById('timer-fill');
     const pct = (timeLeft / 45) * 100;
     timerFill.style.width = `${pct}%`;
-    timerFill.style.backgroundColor = timeLeft < 15 ? '#ff2a55' : 'var(--accent-cyan)';
+    timerFill.style.backgroundColor = timeLeft < 15 ? '#ef4444' : 'var(--accent-cyan)';
 }
 
 function setStatus(msg, color = "") {
@@ -494,7 +540,7 @@ function copyShareText() {
     const text = `SMOKESCREEN | Score: ${score} PTS`;
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-share');
-        btn.innerText = "[ ✔ ] COPIED!";
-        setTimeout(() => btn.innerText = "[ 📋 ] COPY SCORE", 2000);
+        btn.innerText = "✔ COPIED!";
+        setTimeout(() => btn.innerText = "📋 Copy Score", 2000);
     });
 }
