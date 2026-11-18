@@ -15,9 +15,9 @@
 
     <div class="game-wrapper" id="game-wrapper">
         
-        <!-- TOP ARCADE NAVBAR -->
+        <!-- TOP KRAB-STYLE NAV BAR -->
         <nav class="top-nav" id="top-nav">
-            <div class="nav-brand" onclick="returnToMenu()"><span class="brand-flame">🔥</span> SMOKESCREEN</div>
+            <div class="nav-brand" onclick="returnToMenu()">🔥 SMOKESCREEN</div>
             <div class="nav-actions">
                 <button class="arcade-btn btn-sm" onclick="openModal('shop-modal')">🛍️ Shop</button>
                 <button class="arcade-btn btn-sm" onclick="openModal('account-modal')">👤 <span id="nav-username">Account</span></button>
@@ -25,47 +25,34 @@
             </div>
         </nav>
 
-        <!-- MAIN MENU SCREEN (Krunker Style Arcade Dashboard) -->
+        <!-- MAIN MENU SCREEN (Krillion Centered Dive Layout) -->
         <div id="main-menu" class="screen active-screen">
             <div class="hero-section">
-                <div class="hero-badge">⚡ V2.5 ARCADE EDITION</div>
                 <h1 class="hero-title">SMOKESCREEN</h1>
-                <p class="hero-subtitle">THE ULTIMATE DEDUCTION PARTY GAME</p>
+                <p class="hero-subtitle">THE DAILY DIVE // TRUST NOTHING</p>
+                <p class="hero-subtext">8 CARDS • 6 TRUE CLUES • 2 SMOKESCREEN LIES</p>
             </div>
 
-            <div class="dashboard-grid">
-                <!-- Left Action Card -->
-                <div class="dash-card primary-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <h3>DAILY PUZZLE</h3>
-                        <p>New curated deduction challenge every 24 hours. Keep your streak alive!</p>
-                        <div class="card-footer-info">
-                            <span>STREAK: <strong id="menu-streak">0</strong> 🔥</span>
-                            <span>PUZZLE #<span id="menu-daily-num">1</span></span>
-                        </div>
-                        <button id="btn-play-daily" class="arcade-btn btn-action" onclick="playClick(); startDailyGame()">▶ PLAY DAILY</button>
-                    </div>
-                </div>
+            <div class="krillion-deck-container">
+                <!-- Daily Button (Big Glowing Primary) -->
+                <button id="btn-play-daily" class="arcade-btn btn-hero daily-hero-btn" onclick="playClick(); startDailyGame()">
+                    <span class="sub-indicator">PUZZLE #<span id="menu-daily-num">1</span> • STREAK: <strong id="menu-streak">0</strong> 🔥</span>
+                    <span class="hero-btn-text">▼ BEGIN DAILY DIVE ▼</span>
+                </button>
 
-                <!-- Right Action Card -->
-                <div class="dash-card secondary-card">
-                    <div class="card-glow"></div>
-                    <div class="card-content">
-                        <h3>ARCADE MODE</h3>
-                        <p>Choose your difficulty. Face up to 6 deceptive smokescreen lies!</p>
-                        <div class="card-footer-info">
-                            <span>DIFFICULTY TIERS</span>
-                            <span>4 MODES</span>
-                        </div>
-                        <button class="arcade-btn btn-action btn-alt" onclick="playClick(); openModal('difficulty-modal')">🕹️ SELECT ARCADE</button>
-                    </div>
-                </div>
+                <!-- Arcade Mode Button -->
+                <button class="arcade-btn btn-hero arcade-hero-btn" onclick="playClick(); openModal('difficulty-modal')">
+                    <span class="sub-indicator">ARCADE TIERS • MULTI-DIFFICULTY</span>
+                    <span class="hero-btn-text">🕹️ ARCADE MODE</span>
+                </button>
             </div>
 
-            <div class="menu-footer-bar">
-                <button class="arcade-btn btn-sub" onclick="playClick(); toggleInstructions(true)">📜 How To Play</button>
-                <button class="arcade-btn btn-sub" onclick="playClick(); openModal('shop-modal')">🪙 Token Store</button>
+            <div class="krillion-footer-meta">
+                <button class="link-btn" onclick="playClick(); toggleInstructions(true)">📜 How To Play</button>
+                <span>•</span>
+                <span id="footer-streak-info">Streak: 0</span>
+                <span>•</span>
+                <button class="link-btn" onclick="playClick(); openModal('shop-modal')">Token Store</button>
             </div>
         </div>
 
@@ -73,7 +60,7 @@
         <div id="difficulty-modal" class="modal hidden">
             <div class="modal-card">
                 <h2>CHOOSE DIFFICULTY</h2>
-                <p class="modal-sub">More lies mean higher score multipliers!</p>
+                <p class="modal-sub">Select your smokescreen density:</p>
                 <div class="difficulty-list">
                     <button class="arcade-btn diff-btn easy" onclick="playClick(); startArcadeGame('easy')">🟢 EASY <span class="sub-tag">2 Lies</span></button>
                     <button class="arcade-btn diff-btn med" onclick="playClick(); startArcadeGame('medium')">🟡 MEDIUM <span class="sub-tag">4 Lies</span></button>
@@ -121,7 +108,7 @@
                 Dealt! Flip cards and deduce the target.
             </div>
 
-            <!-- Symmetrical Cartoony Card Grid -->
+            <!-- Symmetrical Card Grid -->
             <main class="card-grid" id="card-grid">
                 <!-- Injected via script.js -->
             </main>
@@ -140,7 +127,7 @@
             <div class="modal-card">
                 <h2>PLAYER ACCOUNT</h2>
                 <div id="auth-logged-out" class="auth-box">
-                    <p class="modal-sub">Log in to save your streaks, stats, and profile tokens!</p>
+                    <p class="modal-sub">Log in to save your streaks and tokens across sessions!</p>
                     <input type="text" id="auth-user-input" class="auth-input" placeholder="Enter Username..." autocomplete="off">
                     <input type="password" id="auth-pass-input" class="auth-input" placeholder="Enter Password...">
                     <button class="arcade-btn btn-action" onclick="playClick(); handleLogin()">LOGIN / SIGN UP</button>
