@@ -1,31 +1,31 @@
 :root[data-theme="dark"] {
-    --bg-void: #030307;
-    --bg-panel: #0b0b14;
-    --bg-card-back: #121220;
-    --bg-card-front: #19192c;
-    --border-dark: #202035;
-    --border-light: #52527a;
+    --bg-void: #020205;
+    --bg-panel: #090912;
+    --bg-card-back: #10101b;
+    --bg-card-front: #161626;
+    --border-dark: #1b1b2d;
+    --border-light: #4a4a70;
     --accent-cyan: #00f0ff;
     --accent-green: #2ce865;
     --accent-red: #ff2a55;
     --accent-amber: #ffaa00;
-    --text-main: #f5f5ff;
-    --text-dim: #a3a3c2;
+    --text-main: #f0f0ff;
+    --text-dim: #9494b8;
 }
 
 :root[data-theme="light"] {
-    --bg-void: #dcdce6;
+    --bg-void: #d5d5e0;
     --bg-panel: #ffffff;
-    --bg-card-back: #e8e8f2;
-    --bg-card-front: #f2f2fc;
-    --border-dark: #b8b8d0;
-    --border-light: #6a6a96;
-    --accent-cyan: #0077ff;
-    --accent-green: #10803c;
+    --bg-card-back: #e4e4f0;
+    --bg-card-front: #f0f0fa;
+    --border-dark: #b0b0cc;
+    --border-light: #5e5e8c;
+    --accent-cyan: #0066ee;
+    --accent-green: #0d7a36;
     --accent-red: #cc1133;
     --accent-amber: #b37000;
-    --text-main: #12121c;
-    --text-dim: #555577;
+    --text-main: #0d0d14;
+    --text-dim: #4d4d66;
 }
 
 * {
@@ -58,14 +58,14 @@ body {
     inset: 0;
     pointer-events: none;
     z-index: 999;
-    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.05) 50%);
+    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.04) 50%);
     background-size: 100% 4px;
 }
 
 .game-wrapper {
     width: 100%;
-    max-width: 880px;
-    padding: 20px;
+    max-width: 900px;
+    padding: 16px;
     position: relative;
     z-index: 2;
     display: flex;
@@ -119,16 +119,16 @@ body {
     padding: 24px;
 }
 
-/* Main Menu Screen */
-.menu-box {
+/* Main Menu Arcade Layout */
+.menu-hero-container {
     text-align: center;
+    padding: 20px 0 10px 0;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 40px 24px;
+    gap: 12px;
 }
 
-.menu-header {
+.menu-title-block {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -137,23 +137,30 @@ body {
 
 .glow-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: clamp(20px, 4.5vw, 30px);
+    font-size: clamp(22px, 5vw, 34px);
     color: var(--text-main);
-    text-shadow: 3px 3px 0px var(--accent-red), -2px -2px 0px var(--border-dark);
+    text-shadow: 4px 4px 0px var(--accent-red), -2px -2px 0px var(--border-dark);
     letter-spacing: 3px;
 }
 
 .menu-subtitle {
     color: var(--accent-cyan);
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 2px;
+}
+
+.menu-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--bg-panel);
 }
 
 .menu-stats-preview {
     display: flex;
     justify-content: center;
     gap: 32px;
-    font-size: 22px;
+    font-size: 24px;
     color: var(--text-dim);
     background: var(--bg-void);
     padding: 12px;
@@ -168,7 +175,7 @@ body {
 
 .btn-huge {
     font-size: 13px;
-    padding: 16px;
+    padding: 18px;
     width: 100%;
 }
 
@@ -428,7 +435,7 @@ body {
     color: #fff;
 }
 
-/* Realistic Multi-Stage Flame Burning Animation */
+/* Realistic Flame Burning Animation */
 .card-slot.is-burning {
     animation: realFlameBurn 0.6s ease-in-out forwards !important;
     pointer-events: none;
