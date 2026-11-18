@@ -12,7 +12,11 @@ const PUZZLE_BANK = [
         ],
         lies: [
             "I require charcoal or wood chips to operate.",
-            "I am primarily used to freeze liquids solid."
+            "I am primarily used to freeze liquids solid.",
+            "I require gasoline to start up each morning.",
+            "I fold laundry automatically when closed.",
+            "I project holograms onto your kitchen ceiling.",
+            "I print receipts every time you cook."
         ]
     },
     {
@@ -28,7 +32,11 @@ const PUZZLE_BANK = [
         ],
         lies: [
             "I shed thousands of autumn leaves every October.",
-            "I swim upstream to lay my eggs."
+            "I swim upstream to lay my eggs.",
+            "I grow feathers instead of spines.",
+            "I produce fresh apple juice when squeezed.",
+            "I require freezing snow to survive.",
+            "I glow neon blue at midnight."
         ]
     },
     {
@@ -44,28 +52,17 @@ const PUZZLE_BANK = [
         ],
         lies: [
             "I measure the temperature of boiling water.",
-            "I need to be plugged into a wall outlet to charge."
-        ]
-    },
-    {
-        answer: "PIANO",
-        aliases: ["GRAND PIANO", "KEYBOARD"],
-        clues: [
-            "I have 88 black and white triggers.",
-            "Inside me, felt hammers strike tight metal strings.",
-            "I usually have three foot pedals underneath.",
-            "Mozart and Beethoven spent their lives playing me.",
-            "Moving me up a flight of stairs takes a crew.",
-            "I make music without needing electricity."
-        ],
-        lies: [
-            "You play me by blowing air through a wooden reed.",
-            "I fit neatly inside a standard backpack."
+            "I need to be plugged into a wall outlet to charge.",
+            "I dispense hot coffee on demand.",
+            "I project movies onto bedroom walls.",
+            "I predict tomorrow's lottery numbers.",
+            "I bake bread using solar power."
         ]
     }
 ];
 
-let currentMode = 'daily';
+let currentMode = 'daily'; // 'daily' or 'arcade'
+let currentDifficulty = 'easy'; // easy, medium, hard, extreme
 let currentPuzzle = null;
 let deck = [];
 let score = 1000;
@@ -104,20 +101,20 @@ function playSound(type) {
         osc.stop(now + 0.08);
     } else if (type === 'burn_lie') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(550, now + 0.25);
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAlt = 600;
         gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
-        osc.stop(now + 0.25);
+        osc.stop(now + 0.3);
     } else if (type === 'burn_truth') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(260, now);
-        osc.frequency.linearRampToValueAtTime(70, now + 0.25);
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.linearRampToValueAtTime(50, now + 0.3);
         gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
-        osc.stop(now + 0.25);
+        osc.stop(now + 0.3);
     } else if (type === 'win') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(330, now);
@@ -165,14 +162,28 @@ function shuffleWithRng(array, rng) {
 function updateMenuStats() {
     const dayIdx = Math.abs(getDayIndex());
     document.getElementById('menu-daily-num').innerText = dayIdx + 1;
-    document.getElementById('menu-streak').innerText = localStorage.getItem('smokescreen_streak') || '0';
+    const streakVal = localStorage.getItem('smokescreen_streak') || '0';
+    const winsVal = localStorage.getItem('smokescreen_wins') || '0';
 
-    const isUnlocked = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
-    const arcadeBtn = document.getElementById('menu-arcade-btn');
-    if (isUnlocked) {
-        arcadeBtn.classList.remove('locked');
-        arcadeBtn.innerHTML = "🕹️ PLAY ARCADE MODE";
+    document.getElementById('menu-streak').innerText = streakVal;
+    document.getElementById('acc-streak').innerText = streakVal;
+    document.getElementById('acc-wins').innerText = winsVal;
+
+    // Daily Lock check
+    const isDailyDone = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
+    const dailyBtn = document.getElementById('btn-play-daily');
+    if (isDailyDone) {
+        dailyBtn.classList.add('locked');
+        dailyBtn.innerHTML = "✅ DAILY COMPLETED (COME BACK TOMORROW)";
     }
+}
+
+function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
 }
 
 function toggleInstructions(show) {
@@ -184,9 +195,21 @@ function toggleAudio() {
     document.querySelector('.sound-toggle').innerText = soundEnabled ? "🔊 FX" : "🔇 FX";
 }
 
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+}
+
 function returnToMenu() {
     clearInterval(timerInterval);
-    document.getElementById('end-modal').classList.add('hidden');
+    closeModal('end-modal');
+    closeModal('difficulty-modal');
+    closeModal('shop-modal');
+    closeModal('account-modal');
+    closeModal('settings-modal');
+
     document.getElementById('game-screen').classList.remove('active-screen');
     document.getElementById('game-screen').classList.add('hidden');
     document.getElementById('main-menu').classList.remove('hidden');
@@ -195,27 +218,37 @@ function returnToMenu() {
 }
 
 function startDailyGame() {
-    currentMode = 'daily';
     const dayIdx = Math.abs(getDayIndex());
+    if (localStorage.getItem('smokescreen_daily_done') === String(dayIdx)) {
+        alert("You have already completed today's Daily challenge! Try Arcade mode.");
+        return;
+    }
+
+    currentMode = 'daily';
     const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
     const rng = mulberry32(dayIdx + 99);
-    setupBoard(puzzleObj, rng, `DAILY #${dayIdx + 1}`);
+    setupBoard(puzzleObj, rng, `DAILY #${dayIdx + 1}`, 2); // 2 lies for daily
 }
 
-function startArcadeGame() {
-    const dayIdx = Math.abs(getDayIndex());
-    if (localStorage.getItem('smokescreen_daily_done') !== String(dayIdx)) return;
-
+function startArcadeGame(diff) {
+    closeModal('difficulty-modal');
     currentMode = 'arcade';
+    currentDifficulty = diff;
+
+    let lieCount = 2;
+    if (diff === 'medium') lieCount = 4;
+    if (diff === 'hard') lieCount = 5;
+    if (diff === 'extreme') lieCount = 6;
+
+    burnsLeft = Math.min(lieCount, 3);
     const randomPuzzle = PUZZLE_BANK[Math.floor(Math.random() * PUZZLE_BANK.length)];
-    setupBoard(randomPuzzle, Math.random, "ARCADE MODE");
+    setupBoard(randomPuzzle, Math.random, `ARCADE (${diff.toUpperCase()})`, lieCount);
 }
 
-function setupBoard(puzzleObj, rng, modeBadgeText) {
+function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
     currentPuzzle = puzzleObj;
     score = 1000;
     guessesLeft = 3;
-    burnsLeft = 2;
     timeLeft = 45;
     gameOver = false;
     flipsCount = 0;
@@ -230,9 +263,14 @@ function setupBoard(puzzleObj, rng, modeBadgeText) {
     document.getElementById('game-screen').classList.remove('hidden');
     document.getElementById('game-screen').classList.add('active-screen');
 
+    // Select specified number of lies and true clues to make a total of 8 cards
+    const shuffledLies = shuffleWithRng(puzzleObj.lies, rng).slice(0, lieCount);
+    const trueCluesNeeded = 8 - lieCount;
+    const shuffledClues = shuffleWithRng(puzzleObj.clues, rng).slice(0, trueCluesNeeded);
+
     const rawCards = [
-        ...puzzleObj.clues.map(text => ({ text, isLie: false, flipped: false, burned: false })),
-        ...puzzleObj.lies.map(text => ({ text, isLie: true, flipped: false, burned: false }))
+        ...shuffledClues.map(text => ({ text, isLie: false, flipped: false, burned: false })),
+        ...shuffledLies.map(text => ({ text, isLie: true, flipped: false, burned: false }))
     ];
 
     deck = shuffleWithRng(rawCards, rng);
@@ -271,9 +309,7 @@ function renderCards() {
         if (card.flipped && !card.burned && !gameOver) {
             bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">🔥 BURN</button>`;
         } else if (card.burned) {
-            bottomAction = card.isLie 
-                ? `<div class="burn-badge badge-lie" style="color:var(--accent-amber); font-size:10px;">🔥 DISSOLVED</div>`
-                : `<div class="burn-badge badge-truth" style="color:var(--text-dim); font-size:10px;">💀 DISSOLVED</div>`;
+            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px;">🔥 INCINERATED</div>`;
         }
 
         slot.innerHTML = `
@@ -319,26 +355,27 @@ function burnCard(event, index) {
     deck[index].burning = true;
     triggerShake();
 
+    const totalLiesInDeck = deck.filter(c => c.isLie).length;
+
     if (deck[index].isLie) {
         score += 200;
         liesCaught++;
         playSound('burn_lie');
         spawnParticles(event.clientX, event.clientY, '#ffaa00');
-        setStatus("SUCCESS! SMOKESCREEN DISSOLVED (+200 PTS)!", "#2ce865");
+        setStatus("SUCCESS! SMOKESCREEN INCINERATED (+200 PTS)!", "#2ce865");
     } else {
         score = Math.max(50, score - 200);
         playSound('burn_truth');
         spawnParticles(event.clientX, event.clientY, '#ff2a55');
-        setStatus("MISTAKE! YOU DISSOLVED A REAL CLUE (-200 PTS)!", "#ff2a55");
+        setStatus("MISTAKE! YOU INCINERATED A REAL CLUE (-200 PTS)!", "#ff2a55");
     }
 
     renderCards();
 
-    // After spark dissolve animation finishes, completely remove and re-center layout
     setTimeout(() => {
         deck[index].removed = true;
         renderCards();
-    }, 420);
+    }, 550);
 
     updateHUD();
 }
@@ -377,18 +414,22 @@ function endRound(won) {
     deck.forEach(c => { if(!c.removed) c.flipped = true; });
     renderCards();
 
-    if (currentMode === 'daily') {
+    if (currentMode === 'daily' && won) {
         const dayIdx = getDayIndex();
         localStorage.setItem('smokescreen_daily_done', String(dayIdx));
-        if (won) {
-            const streak = parseInt(localStorage.getItem('smokescreen_streak') || '0', 10) + 1;
-            localStorage.setItem('smokescreen_streak', String(streak));
-        } else {
-            localStorage.setItem('smokescreen_streak', '0');
-        }
+        const streak = parseInt(localStorage.getItem('smokescreen_streak') || '0', 10) + 1;
+        localStorage.setItem('smokescreen_streak', String(streak));
+        const wins = parseInt(localStorage.getItem('smokescreen_wins') || '0', 10) + 1;
+        localStorage.setItem('smokescreen_wins', String(wins));
+    } else if (!won && currentMode === 'daily') {
+        const dayIdx = getDayIndex();
+        localStorage.setItem('smokescreen_daily_done', String(dayIdx));
+        localStorage.setItem('smokescreen_streak', '0');
+    } else if (won) {
+        const wins = parseInt(localStorage.getItem('smokescreen_wins') || '0', 10) + 1;
+        localStorage.setItem('smokescreen_wins', String(wins));
     }
 
-    // Determine Arcade Rank
     let rank = 'S';
     if (!won) rank = 'F';
     else if (score >= 900) rank = 'S';
@@ -403,7 +444,7 @@ function endRound(won) {
     document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
     document.getElementById('modal-stats').innerText = won 
-        ? `Flips used: ${flipsCount} • Smokescreens purged: ${liesCaught}/2` 
+        ? `Flips used: ${flipsCount} • Smokescreens purged: ${liesCaught}` 
         : `Target evaded capture. Better luck next time!`;
 
     modal.classList.remove('hidden');
@@ -418,13 +459,12 @@ function updateHUD() {
     const timerFill = document.getElementById('timer-fill');
     const pct = (timeLeft / 45) * 100;
     timerFill.style.width = `${pct}%`;
-    timerFill.style.backgroundColor = timeLeft < 15 ? '#ff2a55' : '#00f0ff';
+    timerFill.style.backgroundColor = timeLeft < 15 ? '#ff2a55' : 'var(--accent-cyan)';
 }
 
-function setStatus(msg, color = "#00f0ff") {
+function setStatus(msg, color = "") {
     const banner = document.getElementById('status-banner');
-    banner.style.color = color;
-    banner.style.borderLeftColor = color;
+    if(color) banner.style.color = color;
     banner.innerText = msg;
 }
 
@@ -437,15 +477,15 @@ function triggerShake() {
 
 function spawnParticles(x, y, color) {
     const container = document.getElementById('particle-container');
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 14; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.left = `${x}px`;
         p.style.top = `${y}px`;
         p.style.backgroundColor = color;
 
-        const angle = (Math.PI * 2 * i) / 12;
-        const dist = 35 + Math.random() * 35;
+        const angle = (Math.PI * 2 * i) / 14;
+        const dist = 40 + Math.random() * 40;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
 
