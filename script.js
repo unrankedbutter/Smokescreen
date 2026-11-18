@@ -1,760 +1,450 @@
-:root[data-theme="dark"] {
-    --bg-void: #060810;
-    --bg-card: #0f1322;
-    --bg-card-hover: #161b2e;
-    --border-color: #1e263f;
-    --accent-cyan: #00f0ff;
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
-    --accent-amber: #f59e0b;
-    --accent-purple: #8b5cf6;
-    --text-main: #f8fafc;
-    --text-dim: #94a3b8;
+const PUZZLE_BANK = [
+    {
+        answer: "MICROWAVE",
+        aliases: ["MICROWAVE OVEN"],
+        clues: [
+            "I spin my contents in a circle while working.",
+            "I have a windowed door that lets you watch.",
+            "I beep loudly when my job is finished.",
+            "I live on most kitchen counters.",
+            "Metal objects inside me cause dangerous sparks.",
+            "I reheat yesterday's leftovers in seconds."
+        ]
+    },
+    {
+        answer: "CACTUS",
+        aliases: ["CACTI"],
+        clues: [
+            "I store water inside my thick green body.",
+            "Touching me without gloves is a painful mistake.",
+            "I thrive in dry, scorching desert climates.",
+            "People often keep tiny versions of me on windowsills.",
+            "I rarely need to be watered.",
+            "I occasionally bloom bright flowers."
+        ]
+    },
+    {
+        answer: "COMPASS",
+        aliases: ["MAGNETIC COMPASS"],
+        clues: [
+            "My needle constantly points in one specific direction.",
+            "Hikers and sailors rely on me when GPS fails.",
+            "I react to Earth's invisible magnetic field.",
+            "I have N, S, E, and W printed on my face.",
+            "Holding a magnet near me ruins my accuracy.",
+            "I fit easily inside a pocket."
+        ]
+    }
+];
+
+let currentMode = 'daily';
+let currentDifficulty = 'easy';
+let currentPuzzle = null;
+let deck = [];
+let score = 1000;
+let guessesLeft = 3;
+let burnsLeft = 2;
+let timeLeft = 45;
+let timerInterval = null;
+let gameOver = false;
+let soundEnabled = true;
+let flipsCount = 0;
+let liesCaught = 0;
+
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 }
 
-:root[data-theme="light"] {
-    --bg-void: #d8e2ec;
-    --bg-card: #ffffff;
-    --bg-card-hover: #f1f5f9;
-    --border-color: #cbd5e1;
-    --accent-cyan: #0284c7;
-    --accent-green: #059669;
-    --accent-red: #dc2626;
-    --accent-amber: #d97706;
-    --accent-purple: #7c3aed;
-    --text-main: #0f172a;
-    --text-dim: #64748b;
+function playClick() {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(200, now + 0.05);
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+    osc.start(now);
+    osc.stop(now + 0.05);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
+function playSound(type) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
 
-body {
-    background-color: var(--bg-void);
-    color: var(--text-main);
-    font-family: 'Fredoka', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow-x: hidden;
-    background-image: 
-        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-    background-size: 32px 32px;
-    transition: background-color 0.3s ease;
-}
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
 
-.crt-overlay {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 999;
-    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.04) 50%);
-    background-size: 100% 4px;
-}
-
-.game-wrapper {
-    width: 100%;
-    max-width: 960px;
-    padding: 20px;
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Top Navbar */
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 24px;
-    background: var(--bg-card);
-    border: 3px solid var(--accent-cyan);
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
-}
-
-.nav-brand {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 13px;
-    color: var(--accent-cyan);
-    cursor: pointer;
-    text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
-}
-
-.nav-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.screen {
-    display: none;
-    flex-direction: column;
-    gap: 20px;
-    animation: screenFadeIn 0.25s ease-out;
-}
-
-.screen.active-screen {
-    display: flex;
-}
-
-@keyframes screenFadeIn {
-    0% { opacity: 0; transform: translateY(8px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Krillion Centered Dive Layout */
-.hero-section {
-    text-align: center;
-    padding: 24px 0 10px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.hero-title {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(28px, 6vw, 46px);
-    color: var(--accent-cyan);
-    text-shadow: 4px 4px 0px var(--accent-red), -2px -2px 0px #000;
-    letter-spacing: 3px;
-}
-
-.hero-subtitle {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    color: var(--text-main);
-    letter-spacing: 2px;
-}
-
-.hero-subtext {
-    color: var(--text-dim);
-    font-size: 15px;
-    font-weight: 600;
-}
-
-.krillion-deck-container {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.btn-hero {
-    background: var(--bg-card);
-    border: 3px solid var(--accent-cyan);
-    border-radius: 12px;
-    padding: 22px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    box-shadow: 0 0 25px rgba(0, 240, 255, 0.12), inset 0 0 15px rgba(0, 240, 255, 0.05);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-    cursor: pointer;
-}
-
-.btn-hero:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent-green);
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.25);
-}
-
-.daily-hero-btn {
-    border-color: var(--accent-cyan);
-}
-
-.arcade-hero-btn {
-    border-color: var(--accent-purple);
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.12);
-}
-
-.arcade-hero-btn:hover {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.25);
-}
-
-.sub-indicator {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-}
-
-.hero-btn-text {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 16px;
-    color: var(--text-main);
-    text-shadow: 2px 2px 0px rgba(0,0,0,0.6);
-}
-
-.krillion-footer-meta {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 14px;
-    font-size: 15px;
-    color: var(--text-dim);
-    margin-top: 10px;
-    font-weight: 600;
-}
-
-.link-btn {
-    background: none;
-    border: none;
-    color: var(--accent-cyan);
-    font-family: 'Fredoka', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.link-btn:hover {
-    color: var(--text-main);
-}
-
-/* Arcade Buttons */
-.arcade-btn {
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 10px 18px;
-    background: var(--bg-card);
-    color: var(--text-main);
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
-}
-
-.arcade-btn:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--accent-cyan);
-    transform: translateY(-2px);
-}
-
-.arcade-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 0 0 rgba(0,0,0,0.15);
-}
-
-.btn-action {
-    background: var(--accent-green);
-    color: #fff;
-    border-color: #059669;
-    font-size: 15px;
-    padding: 14px;
-    width: 100%;
-    border-radius: 12px;
-}
-
-.btn-sm {
-    font-size: 12px;
-    padding: 8px 14px;
-}
-
-.btn-danger {
-    background: var(--accent-red);
-    color: #fff;
-    border-color: #991b1b;
-    width: 100%;
-    padding: 12px;
-}
-
-/* Game Header & HUD */
-.game-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-card);
-    padding: 12px 18px;
-    border: 2px solid var(--border-color);
-    border-radius: 14px;
-}
-
-.game-badge {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    color: var(--accent-cyan);
-}
-
-.timer-bar-container {
-    width: 100%;
-    height: 10px;
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.timer-fill {
-    width: 100%;
-    height: 100%;
-    background: var(--accent-cyan);
-    transition: width 1s linear, background 0.3s;
-}
-
-.hud-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
-
-.hud-box {
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 10px;
-    text-align: center;
-}
-
-.hud-title {
-    display: block;
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 600;
-}
-
-.hud-val {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    color: var(--accent-amber);
-    margin-top: 4px;
-    display: block;
-}
-
-.status-banner {
-    background: var(--bg-card);
-    border-left: 5px solid var(--accent-cyan);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 14px 18px;
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--accent-cyan);
-    min-height: 52px;
-    display: flex;
-    align-items: center;
-}
-
-/* Symmetrical Card Grid */
-.card-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 16px;
-    perspective: 1200px;
-    min-height: 400px;
-    padding: 10px 0;
-}
-
-.card-slot {
-    width: calc(25% - 12px);
-    height: 195px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.25s cubic-bezier(0.2, 0.85, 0.3, 1.15);
-}
-
-@media (max-width: 768px) {
-    .card-slot {
-        width: calc(50% - 8px);
+    if (type === 'flip') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(240, now);
+        osc.frequency.exponentialRampToValueAtTime(480, now + 0.09);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.09);
+        osc.start(now);
+        osc.stop(now + 0.09);
+    } else if (type === 'burn_lie') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(650, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'burn_truth') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'win') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(330, now);
+        osc.frequency.setValueAtTime(440, now + 0.1);
+        osc.frequency.setValueAtTime(550, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
     }
 }
 
-.card-inner {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.3, 1.15);
+window.onload = () => {
+    updateMenuStats();
+    checkAuthSession();
+    document.getElementById('guess-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') submitGuess();
+    });
+};
+
+function getDayIndex() {
+    const startEpoch = new Date('2026-01-01T00:00:00Z').getTime();
+    const now = new Date();
+    const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    return Math.floor((todayUTC - startEpoch) / (1000 * 60 * 60 * 24));
 }
 
-.card-slot.flipped .card-inner {
-    transform: rotateY(180deg);
+function mulberry32(a) {
+    return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
 }
 
-.card-face {
-    position: absolute;
-    inset: 0;
-    backface-visibility: hidden;
-    border: 2px solid var(--border-color);
-    border-radius: 14px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-    text-align: center;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+function shuffleWithRng(array, rng) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
 }
 
-.card-back {
-    background: var(--bg-card);
-    background-image: repeating-linear-gradient(
-        45deg,
-        var(--bg-void),
-        var(--bg-void) 10px,
-        var(--bg-card) 10px,
-        var(--bg-card) 20px
-    );
-    transition: border-color 0.2s, transform 0.2s ease;
+function updateMenuStats() {
+    const dayIdx = Math.abs(getDayIndex());
+    document.getElementById('menu-daily-num').innerText = dayIdx + 1;
+    const streakVal = localStorage.getItem('smokescreen_streak') || '0';
+    const winsVal = localStorage.getItem('smokescreen_wins') || '0';
+
+    document.getElementById('menu-streak').innerText = streakVal;
+    document.getElementById('acc-streak').innerText = streakVal;
+    document.getElementById('acc-wins').innerText = winsVal;
+    document.getElementById('footer-streak-info').innerText = `Streak: ${streakVal}`;
+
+    const isDailyDone = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
+    const dailyBtn = document.getElementById('btn-play-daily');
+    if (isDailyDone) {
+        dailyBtn.classList.add('locked');
+        dailyBtn.querySelector('.hero-btn-text').innerText = "✔ DAILY COMPLETED (LOCKED)";
+    }
 }
 
-.card-slot:not(.flipped):hover .card-back {
-    border-color: var(--accent-cyan);
-    transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 12px 24px rgba(0, 240, 255, 0.15);
+function checkAuthSession() {
+    const username = localStorage.getItem('smokescreen_user');
+    if (username) {
+        document.getElementById('nav-username').innerText = username;
+        document.getElementById('profile-name').innerText = username;
+        document.getElementById('auth-logged-out').classList.add('hidden');
+        document.getElementById('auth-logged-in').classList.remove('hidden');
+    } else {
+        document.getElementById('nav-username').innerText = "Account";
+        document.getElementById('auth-logged-out').classList.remove('hidden');
+        document.getElementById('auth-logged-in').classList.add('hidden');
+    }
 }
 
-.card-number {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 13px;
-    color: var(--text-dim);
+function handleLogin() {
+    const user = document.getElementById('auth-user-input').value.trim();
+    if (!user) { alert("Please enter a valid username."); return; }
+    localStorage.setItem('smokescreen_user', user);
+    checkAuthSession();
+    closeModal('account-modal');
 }
 
-.card-qmark {
-    font-size: 32px;
-    color: var(--border-color);
-    margin-top: 8px;
+function handleGoogleLogin() {
+    localStorage.setItem('smokescreen_user', 'GoogleUser_atomicButter');
+    checkAuthSession();
+    closeModal('account-modal');
 }
 
-.card-front {
-    background: var(--bg-card-hover);
-    border-color: var(--border-color);
-    transform: rotateY(180deg);
-    justify-content: space-between;
+function handleLogout() {
+    localStorage.removeItem('smokescreen_user');
+    checkAuthSession();
+    closeModal('account-modal');
 }
 
-.clue-text {
-    font-size: 17px;
-    line-height: 1.35;
-    color: var(--text-main);
-    font-weight: 600;
-    margin: auto 0;
+function openModal(modalId) { document.getElementById(modalId).classList.remove('hidden'); }
+function closeModal(modalId) { document.getElementById(modalId).classList.add('hidden'); }
+function toggleInstructions(show) { document.getElementById('instructions-modal').classList.toggle('hidden', !show); }
+
+function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('audio-icon').innerText = soundEnabled ? "🔊" : "🔇";
 }
 
-.burn-btn {
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 700;
-    font-size: 12px;
-    background: #fee2e2;
-    color: var(--accent-red);
-    border: 2px solid #f87171;
-    border-radius: 8px;
-    padding: 8px;
-    cursor: pointer;
-    width: 100%;
-    transition: background 0.15s;
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
 }
 
-:root[data-theme="dark"] .burn-btn {
-    background: #450a0a;
-    border-color: var(--accent-red);
+function returnToMenu() {
+    clearInterval(timerInterval);
+    closeModal('end-modal'); closeModal('difficulty-modal'); closeModal('shop-modal'); closeModal('account-modal'); closeModal('settings-modal');
+    document.getElementById('game-screen').classList.remove('active-screen');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('main-menu').classList.remove('hidden');
+    document.getElementById('main-menu').classList.add('active-screen');
+    updateMenuStats();
 }
 
-.burn-btn:hover {
-    background: var(--accent-red);
-    color: #fff;
+function startDailyGame() {
+    const dayIdx = Math.abs(getDayIndex());
+    if (localStorage.getItem('smokescreen_daily_done') === String(dayIdx)) {
+        alert("Daily puzzle already completed for today! Try Arcade mode.");
+        return;
+    }
+    currentMode = 'daily';
+    const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
+    setupBoard(puzzleObj, mulberry32(dayIdx + 99), `DAILY #${dayIdx + 1}`, 2);
 }
 
-/* Flame Particle Burning Animation */
-.card-slot.is-burning {
-    animation: realFlameBurn 0.6s ease-in-out forwards !important;
-    pointer-events: none;
+function startArcadeGame(diff) {
+    closeModal('difficulty-modal');
+    currentMode = 'arcade';
+    currentDifficulty = diff;
+    let lieCount = diff === 'medium' ? 4 : diff === 'hard' ? 5 : diff === 'extreme' ? 6 : 2;
+    burnsLeft = Math.min(lieCount, 3);
+    const randomPuzzle = PUZZLE_BANK[Math.floor(Math.random() * PUZZLE_BANK.length)];
+    setupBoard(randomPuzzle, Math.random, `ARCADE (${diff.toUpperCase()})`, lieCount);
 }
 
-@keyframes realFlameBurn {
-    0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-    30% { transform: scale(1.1) rotate(4deg); filter: brightness(2.5) sepia(1) saturate(8) hue-rotate(-30deg); }
-    70% { transform: scale(0.6) translateY(20px) rotate(-10deg); opacity: 0.8; filter: brightness(3.5); }
-    100% { transform: scale(0.1) translateY(40px) rotate(20deg); opacity: 0; width: 0; margin: 0; padding: 0; border: none; }
+function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
+    currentPuzzle = puzzleObj;
+    score = 1000; guessesLeft = 3; timeLeft = 45; gameOver = false; flipsCount = 0; liesCaught = 0;
+
+    document.getElementById('game-mode-badge').innerText = modeBadgeText;
+    document.getElementById('guess-input').value = '';
+    document.getElementById('guess-input').disabled = false;
+
+    document.getElementById('main-menu').classList.remove('active-screen');
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    document.getElementById('game-screen').classList.add('active-screen');
+
+    let allOtherClues = [];
+    PUZZLE_BANK.forEach(p => { if (p.answer !== puzzleObj.answer) allOtherClues.push(...p.clues); });
+
+    const shuffledLies = shuffleWithRng(allOtherClues, rng).slice(0, lieCount);
+    const shuffledClues = shuffleWithRng(puzzleObj.clues, rng).slice(0, 8 - lieCount);
+
+    const rawCards = [
+        ...shuffledClues.map(text => ({ text, isLie: false, flipped: false, burned: false })),
+        ...shuffledLies.map(text => ({ text, isLie: true, flipped: false, burned: false }))
+    ];
+
+    deck = shuffleWithRng(rawCards, rng);
+    renderCards();
+    updateHUD();
+    startTimer();
+    setStatus("Dealt! Flip cards and deduce the target.");
 }
 
-/* Guess Input */
-.guess-container {
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 14px;
-    padding: 14px;
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (gameOver) return;
+        timeLeft--;
+        updateHUD();
+        if (timeLeft <= 0) { score = Math.max(50, score - 100); timeLeft = 45; }
+    }, 1000);
 }
 
-.input-wrapper {
-    display: flex;
-    gap: 12px;
+function renderCards() {
+    const grid = document.getElementById('card-grid');
+    grid.innerHTML = '';
+    deck.forEach((card, index) => {
+        if (card.removed) return;
+        const slot = document.createElement('div');
+        slot.className = 'card-slot';
+        if (card.flipped) slot.classList.add('flipped');
+        if (card.burning) slot.classList.add('is-burning');
+
+        let bottomAction = '';
+        if (card.flipped && !card.burned && !gameOver) {
+            bottomAction = `<button class="burn-btn" onclick="playClick(); burnCard(event, ${index})">🔥 BURN</button>`;
+        } else if (card.burned) {
+            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px; font-weight:700;">🔥 INCINERATED</div>`;
+        }
+
+        slot.innerHTML = `
+            <div class="card-inner">
+                <div class="card-face card-back">
+                    <span class="card-number">#0${index + 1}</span>
+                    <span class="card-qmark">?</span>
+                </div>
+                <div class="card-face card-front">
+                    <p class="clue-text">${card.text}</p>
+                    ${bottomAction}
+                </div>
+            </div>
+        `;
+        slot.onclick = (e) => { if (e.target.tagName !== 'BUTTON') flipCard(e, index); };
+        grid.appendChild(slot);
+    });
 }
 
-input[type="text"], .auth-input {
-    flex: 1;
-    background: var(--bg-void);
-    border: 2px solid var(--border-color);
-    color: var(--text-main);
-    font-family: 'Fredoka', sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 14px 18px;
-    border-radius: 10px;
-    outline: none;
-    text-transform: uppercase;
-    transition: border-color 0.2s;
+function flipCard(event, index) {
+    if (gameOver || deck[index].flipped || deck[index].burned) return;
+    deck[index].flipped = true; flipsCount++;
+    playSound('flip');
+    spawnParticles(event.clientX || 400, event.clientY || 300, '#00f0ff');
+    const activeFlips = deck.filter(c => c.flipped && !c.burned).length;
+    if (activeFlips > 1) score = Math.max(100, score - 80);
+    setStatus(activeFlips === 1 ? "First clue inspection is free!" : "Clue inspected (-80 pts).");
+    renderCards(); updateHUD();
 }
 
-input[type="text"]:focus, .auth-input:focus {
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+function burnCard(event, index) {
+    event.stopPropagation();
+    if (gameOver || burnsLeft <= 0 || deck[index].burned) return;
+    burnsLeft--; deck[index].burned = true; deck[index].burning = true;
+    triggerShake();
+
+    if (deck[index].isLie) {
+        score += 200; liesCaught++;
+        playSound('burn_lie');
+        spawnParticles(event.clientX, event.clientY, '#f59e0b');
+        setStatus("Success! Smokescreen incinerated (+200 pts)!", "#10b981");
+    } else {
+        score = Math.max(50, score - 200);
+        playSound('burn_truth');
+        spawnParticles(event.clientX, event.clientY, '#ef4444');
+        setStatus("Mistake! You incinerated a real clue (-200 pts)!", "#ef4444");
+    }
+    renderCards();
+    setTimeout(() => { deck[index].removed = true; renderCards(); }, 550);
+    updateHUD();
 }
 
-.btn-submit {
-    background: var(--accent-cyan);
-    color: #0f172a;
-    border-color: #0284c7;
-    font-weight: 700;
-    padding: 0 24px;
-    border-radius: 10px;
+function submitGuess() {
+    if (gameOver) return;
+    const input = document.getElementById('guess-input');
+    const guess = input.value.trim().toUpperCase();
+    if (!guess) return;
+    if ([currentPuzzle.answer, ...currentPuzzle.aliases].includes(guess)) {
+        playSound('win'); endRound(true);
+    } else {
+        guessesLeft--; score = Math.max(50, score - 200);
+        triggerShake(); input.value = ''; updateHUD();
+        if (guessesLeft <= 0) endRound(false);
+        else setStatus(`Incorrect! ${guessesLeft} tries left (-200 pts).`, "#ef4444");
+    }
 }
 
-/* Modals */
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    padding: 20px;
+function endRound(won) {
+    gameOver = true; clearInterval(timerInterval);
+    document.getElementById('guess-input').disabled = true;
+    deck.forEach(c => { if(!c.removed) c.flipped = true; });
+    renderCards();
+
+    if (currentMode === 'daily') {
+        const dayIdx = getDayIndex();
+        localStorage.setItem('smokescreen_daily_done', String(dayIdx));
+        const streak = won ? parseInt(localStorage.getItem('smokescreen_streak') || '0', 10) + 1 : 0;
+        localStorage.setItem('smokescreen_streak', String(streak));
+        if (won) localStorage.setItem('smokescreen_wins', String(parseInt(localStorage.getItem('smokescreen_wins') || '0', 10) + 1));
+    } else if (won) {
+        localStorage.setItem('smokescreen_wins', String(parseInt(localStorage.getItem('smokescreen_wins') || '0', 10) + 1));
+    }
+
+    let rank = !won ? 'F' : score >= 900 ? 'S' : score >= 700 ? 'A' : score >= 500 ? 'B' : 'C';
+    const modal = document.getElementById('end-modal');
+    document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "INVESTIGATION FAILED";
+    document.getElementById('end-icon').innerText = won ? "🏆" : "💀";
+    document.getElementById('end-final-score').innerText = `${score} PTS`;
+    document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
+    document.getElementById('modal-answer').innerText = currentPuzzle.answer;
+    document.getElementById('modal-stats').innerText = won ? `Flips used: ${flipsCount} • Smokescreens purged: ${liesCaught}` : `Target evaded capture.`;
+    modal.classList.remove('hidden');
 }
 
-.modal.hidden { display: none; }
-
-.modal-card {
-    background: var(--bg-card);
-    border: 2px solid var(--border-color);
-    border-radius: 18px;
-    width: 100%;
-    max-width: 440px;
-    padding: 28px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.2);
+function updateHUD() {
+    document.getElementById('hud-score').innerText = score;
+    document.getElementById('hud-guesses').innerText = guessesLeft;
+    document.getElementById('hud-burns').innerText = burnsLeft;
+    document.getElementById('hud-time').innerText = timeLeft;
+    const timerFill = document.getElementById('timer-fill');
+    timerFill.style.width = `${(timeLeft / 45) * 100}%`;
+    timerFill.style.backgroundColor = timeLeft < 15 ? '#ef4444' : 'var(--accent-cyan)';
 }
 
-.modal-card h2 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 16px;
-    color: var(--text-main);
+function setStatus(msg, color = "") {
+    const banner = document.getElementById('status-banner');
+    if(color) banner.style.color = color;
+    banner.innerText = msg;
 }
 
-.modal-sub {
-    color: var(--text-dim);
-    font-size: 15px;
+function triggerShake() {
+    const wrapper = document.getElementById('game-wrapper');
+    wrapper.classList.remove('shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('shake');
 }
 
-.difficulty-list, .settings-list, .auth-box {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+function spawnParticles(x, y, color) {
+    const container = document.getElementById('particle-container');
+    for (let i = 0; i < 14; i++) {
+        const p = document.createElement('div');
+        p.className = 'pixel-particle';
+        p.style.left = `${x}px`; p.style.top = `${y}px`;
+        p.style.backgroundColor = color;
+        const angle = (Math.PI * 2 * i) / 14, dist = 40 + Math.random() * 40;
+        p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+        p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 500);
+    }
 }
 
-.diff-btn {
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 18px;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.sub-tag {
-    font-size: 12px;
-    background: rgba(0,0,0,0.1);
-    padding: 4px 8px;
-    border-radius: 6px;
-}
-
-.google-btn {
-    background: #ffffff;
-    color: #1e293b;
-    border-color: #cbd5e1;
-    font-weight: 600;
-    width: 100%;
-}
-
-.auth-divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-    margin: 4px 0;
-}
-
-.auth-divider::before, .auth-divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.auth-divider::before { margin-right: 10px; }
-.auth-divider::after { margin-left: 10px; }
-
-.profile-pill {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--bg-void);
-    padding: 14px;
-    border-radius: 12px;
-    border: 2px solid var(--border-color);
-    text-align: left;
-}
-
-#profile-avatar { font-size: 28px; }
-.profile-status { font-size: 12px; color: var(--accent-green); font-weight: 600; }
-
-.profile-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.p-stat {
-    background: var(--bg-void);
-    border: 2px solid var(--border-color);
-    padding: 10px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    font-size: 13px;
-    color: var(--text-dim);
-}
-
-.p-stat strong {
-    font-size: 16px;
-    color: var(--text-main);
-}
-
-.shop-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.shop-item {
-    background: var(--bg-void);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.item-icon { font-size: 28px; }
-.shop-item h4 { font-size: 15px; }
-.shop-item span { font-size: 12px; color: var(--accent-amber); font-weight: 600; }
-
-.setting-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.instructions-body {
-    text-align: left;
-    font-size: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    color: var(--text-dim);
-    line-height: 1.4;
-}
-
-.instructions-body strong { color: var(--text-main); }
-
-.btn-close {
-    width: 100%;
-    background: var(--bg-void);
-    border-color: var(--border-color);
-}
-
-/* End Round Modal */
-.end-card { padding: 32px 24px; }
-.end-icon { font-size: 36px; }
-
-.score-banner {
-    background: var(--bg-void);
-    border: 2px solid var(--border-color);
-    padding: 16px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.s-label { font-size: 13px; color: var(--text-dim); font-weight: 600; }
-.s-value {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 20px;
-    color: var(--accent-green);
-}
-
-.rank-badge {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
-    color: var(--accent-amber);
-    margin-top: 4px;
-}
-
-.reveal-box {
-    background: var(--bg-void);
-    border: 2px solid var(--border-color);
-    padding: 12px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 14px;
-    color: var(--text-dim);
-}
-
-.reveal-box strong {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 18px;
-    color: var(--accent-amber);
-}
-
-.modal-stats { font-size: 15px; color: var(--text-dim); }
-.modal-actions { display: flex; gap: 10px; justify-content: center; }
-
-.pixel-particle {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    pointer-events: none;
-    z-index: 998;
-    animation: particleBurst 0.5s ease-out forwards;
-}
-
-@keyframes particleBurst {
-    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
-    100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(180deg); opacity: 0; }
+function copyShareText() {
+    navigator.clipboard.writeText(`SMOKESCREEN | Score: ${score} PTS`).then(() => {
+        const btn = document.getElementById('btn-share');
+        btn.innerText = "✔ COPIED!";
+        setTimeout(() => btn.innerText = "📋 Copy Score", 2000);
+    });
 }
