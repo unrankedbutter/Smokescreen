@@ -74,8 +74,9 @@ let burnsLeft = 2;
 let timeLeft = 45;
 let timerInterval = null;
 let gameOver = false;
-let actionHistory = [];
 let soundEnabled = true;
+let flipsCount = 0;
+let liesCaught = 0;
 
 let audioCtx = null;
 function initAudio() {
@@ -103,20 +104,20 @@ function playSound(type) {
         osc.stop(now + 0.08);
     } else if (type === 'burn_lie') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAtTime(500, now + 0.3);
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(550, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.25);
     } else if (type === 'burn_truth') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(250, now);
-        osc.frequency.linearRampToValueAtTime(60, now + 0.3);
-        gain.gain.setValueAtTime(0.25, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.linearRampToValueAtTime(70, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.25);
     } else if (type === 'win') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(330, now);
@@ -217,7 +218,8 @@ function setupBoard(puzzleObj, rng, modeBadgeText) {
     burnsLeft = 2;
     timeLeft = 45;
     gameOver = false;
-    actionHistory = [];
+    flipsCount = 0;
+    liesCaught = 0;
 
     document.getElementById('game-mode-badge').innerText = modeBadgeText;
     document.getElementById('guess-input').value = '';
@@ -257,7 +259,6 @@ function renderCards() {
     const grid = document.getElementById('card-grid');
     grid.innerHTML = '';
 
-    // Only render cards that haven't been completely burned away
     deck.forEach((card, index) => {
         if (card.removed) return;
 
@@ -268,11 +269,11 @@ function renderCards() {
 
         let bottomAction = '';
         if (card.flipped && !card.burned && !gameOver) {
-            bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">🔥 BURN LIE</button>`;
+            bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">🔥 BURN</button>`;
         } else if (card.burned) {
             bottomAction = card.isLie 
-                ? `<div class="burn-badge badge-lie">🔥 INCINERATED</div>`
-                : `<div class="burn-badge badge-truth">💀 INCINERATED</div>`;
+                ? `<div class="burn-badge badge-lie" style="color:var(--accent-amber); font-size:10px;">🔥 DISSOLVED</div>`
+                : `<div class="burn-badge badge-truth" style="color:var(--text-dim); font-size:10px;">💀 DISSOLVED</div>`;
         }
 
         slot.innerHTML = `
@@ -297,15 +298,14 @@ function flipCard(event, index) {
     if (gameOver || deck[index].flipped || deck[index].burned) return;
 
     deck[index].flipped = true;
+    flipsCount++;
     playSound('flip');
     spawnParticles(event.clientX, event.clientY, '#00f0ff');
 
-    const flippedCount = deck.filter(c => c.flipped && !c.burned).length;
-    if (flippedCount > 1) score = Math.max(100, score - 80);
+    const activeFlips = deck.filter(c => c.flipped && !c.burned).length;
+    if (activeFlips > 1) score = Math.max(100, score - 80);
 
-    actionHistory.push(deck[index].isLie ? '🟥' : '🟩');
-    setStatus(flippedCount === 1 ? "FIRST FLIP FREE!" : "CLUE INSPECTED (-80 PTS).");
-
+    setStatus(activeFlips === 1 ? "FIRST FLIP FREE!" : "CLUE INSPECTED (-80 PTS).");
     renderCards();
     updateHUD();
 }
@@ -321,25 +321,24 @@ function burnCard(event, index) {
 
     if (deck[index].isLie) {
         score += 200;
-        actionHistory.push('🔥');
+        liesCaught++;
         playSound('burn_lie');
         spawnParticles(event.clientX, event.clientY, '#ffaa00');
-        setStatus("SUCCESS! SMOKESCREEN INCINERATED (+200 PTS)!", "#2ce865");
+        setStatus("SUCCESS! SMOKESCREEN DISSOLVED (+200 PTS)!", "#2ce865");
     } else {
         score = Math.max(50, score - 200);
-        actionHistory.push('💀');
         playSound('burn_truth');
         spawnParticles(event.clientX, event.clientY, '#ff2a55');
-        setStatus("MISTAKE! YOU INCINERATED A REAL CLUE (-200 PTS)!", "#ff2a55");
+        setStatus("MISTAKE! YOU DISSOLVED A REAL CLUE (-200 PTS)!", "#ff2a55");
     }
 
     renderCards();
 
-    // After flame animation finishes, remove card completely and reflow grid layout
+    // After spark dissolve animation finishes, completely remove and re-center layout
     setTimeout(() => {
         deck[index].removed = true;
         renderCards();
-    }, 550);
+    }, 420);
 
     updateHUD();
 }
@@ -353,13 +352,11 @@ function submitGuess() {
     const validAnswers = [currentPuzzle.answer, ...currentPuzzle.aliases];
 
     if (validAnswers.includes(guess)) {
-        actionHistory.push('🎯');
         playSound('win');
         endRound(true);
     } else {
         guessesLeft--;
         score = Math.max(50, score - 200);
-        actionHistory.push('❌');
         triggerShake();
         input.value = '';
         updateHUD();
@@ -391,11 +388,24 @@ function endRound(won) {
         }
     }
 
+    // Determine Arcade Rank
+    let rank = 'S';
+    if (!won) rank = 'F';
+    else if (score >= 900) rank = 'S';
+    else if (score >= 700) rank = 'A';
+    else if (score >= 500) rank = 'B';
+    else rank = 'C';
+
     const modal = document.getElementById('end-modal');
-    document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "BUSTED BY SMOKE";
+    document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "INVESTIGATION FAILED";
+    document.getElementById('end-icon').innerText = won ? "🏆" : "💀";
+    document.getElementById('end-final-score').innerText = `${score} PTS`;
+    document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
-    document.getElementById('emoji-grid').innerText = actionHistory.join(' ');
-    document.getElementById('modal-stats').innerText = won ? `SCORE: ${score} PTS` : `GAME OVER`;
+    document.getElementById('modal-stats').innerText = won 
+        ? `Flips used: ${flipsCount} • Smokescreens purged: ${liesCaught}/2` 
+        : `Target evaded capture. Better luck next time!`;
+
     modal.classList.remove('hidden');
 }
 
@@ -427,28 +437,28 @@ function triggerShake() {
 
 function spawnParticles(x, y, color) {
     const container = document.getElementById('particle-container');
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 12; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.left = `${x}px`;
         p.style.top = `${y}px`;
         p.style.backgroundColor = color;
 
-        const angle = (Math.PI * 2 * i) / 14;
-        const dist = 40 + Math.random() * 50;
+        const angle = (Math.PI * 2 * i) / 12;
+        const dist = 35 + Math.random() * 35;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
 
-    container.appendChild(p);
-        setTimeout(() => p.remove(), 600);
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 500);
     }
 }
 
 function copyShareText() {
-    const text = `SMOKESCREEN\n${actionHistory.join('')}\nScore: ${score}`;
+    const text = `SMOKESCREEN | Score: ${score} PTS`;
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-share');
         btn.innerText = "✅ COPIED!";
-        setTimeout(() => btn.innerText = "📋 COPY RESULT", 2000);
+        setTimeout(() => btn.innerText = "📋 COPY SCORE", 2000);
     });
 }
