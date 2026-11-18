@@ -6,7 +6,7 @@
     <title>SMOKESCREEN // ARCADE DEDUCTION</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
@@ -15,189 +15,232 @@
 
     <div class="game-wrapper" id="game-wrapper">
         
-        <!-- TOP ARCADE NAV BAR -->
-        <nav class="top-nav pixel-box" id="top-nav">
-            <div class="nav-brand" onclick="returnToMenu()">[ 🔥 ] SMOKESCREEN</div>
+        <!-- TOP ARCADE NAVBAR -->
+        <nav class="top-nav" id="top-nav">
+            <div class="nav-brand" onclick="returnToMenu()"><span class="brand-flame">🔥</span> SMOKESCREEN</div>
             <div class="nav-actions">
-                <button class="pixel-btn btn-small" onclick="openModal('shop-modal')">[ 🛒 ] SHOP</button>
-                <button class="pixel-btn btn-small" onclick="openModal('account-modal')">[ 👤 ] ACCOUNT</button>
-                <button class="pixel-btn btn-small" onclick="openModal('settings-modal')">[ ⚙️ ] SETTINGS</button>
+                <button class="arcade-btn btn-sm" onclick="openModal('shop-modal')">🛍️ Shop</button>
+                <button class="arcade-btn btn-sm" onclick="openModal('account-modal')">👤 <span id="nav-username">Account</span></button>
+                <button class="arcade-btn btn-sm" onclick="openModal('settings-modal')">⚙️ Settings</button>
             </div>
         </nav>
 
-        <!-- MAIN MENU SCREEN -->
+        <!-- MAIN MENU SCREEN (Krunker Style Arcade Dashboard) -->
         <div id="main-menu" class="screen active-screen">
-            <div class="menu-hero-container">
-                <div class="menu-title-block">
-                    <span class="flame-icon">⚡</span>
-                    <h1 class="glow-title">SMOKESCREEN</h1>
-                    <span class="flame-icon">⚡</span>
-                </div>
-                <p class="menu-subtitle">HIGH-STAKES DEDUCTION & DECEPTION</p>
+            <div class="hero-section">
+                <div class="hero-badge">⚡ V2.5 ARCADE EDITION</div>
+                <h1 class="hero-title">SMOKESCREEN</h1>
+                <p class="hero-subtitle">THE ULTIMATE DEDUCTION PARTY GAME</p>
             </div>
 
-            <div class="pixel-box menu-panel">
-                <div class="menu-stats-preview">
-                    <span>STREAK: <strong id="menu-streak">0</strong></span>
-                    <span>DAILY #<span id="menu-daily-num">1</span></span>
+            <div class="dashboard-grid">
+                <!-- Left Action Card -->
+                <div class="dash-card primary-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <h3>DAILY PUZZLE</h3>
+                        <p>New curated deduction challenge every 24 hours. Keep your streak alive!</p>
+                        <div class="card-footer-info">
+                            <span>STREAK: <strong id="menu-streak">0</strong> 🔥</span>
+                            <span>PUZZLE #<span id="menu-daily-num">1</span></span>
+                        </div>
+                        <button id="btn-play-daily" class="arcade-btn btn-action" onclick="playClick(); startDailyGame()">▶ PLAY DAILY</button>
+                    </div>
                 </div>
 
-                <div class="menu-btn-group">
-                    <button id="btn-play-daily" class="pixel-btn btn-huge btn-accent" onclick="startDailyGame()">[ ▶ ] PLAY DAILY PUZZLE</button>
-                    <button class="pixel-btn btn-huge" onclick="openModal('difficulty-modal')">[ 🕹️ ] ARCADE MODE</button>
-                    <button class="pixel-btn btn-huge" onclick="toggleInstructions(true)">[ 📜 ] HOW TO PLAY</button>
+                <!-- Right Action Card -->
+                <div class="dash-card secondary-card">
+                    <div class="card-glow"></div>
+                    <div class="card-content">
+                        <h3>ARCADE MODE</h3>
+                        <p>Choose your difficulty. Face up to 6 deceptive smokescreen lies!</p>
+                        <div class="card-footer-info">
+                            <span>DIFFICULTY TIERS</span>
+                            <span>4 MODES</span>
+                        </div>
+                        <button class="arcade-btn btn-action btn-alt" onclick="playClick(); openModal('difficulty-modal')">🕹️ SELECT ARCADE</button>
+                    </div>
                 </div>
+            </div>
+
+            <div class="menu-footer-bar">
+                <button class="arcade-btn btn-sub" onclick="playClick(); toggleInstructions(true)">📜 How To Play</button>
+                <button class="arcade-btn btn-sub" onclick="playClick(); openModal('shop-modal')">🪙 Token Store</button>
             </div>
         </div>
 
-        <!-- DIFFICULTY SELECTOR MODAL (Arcade) -->
+        <!-- DIFFICULTY SELECTOR MODAL -->
         <div id="difficulty-modal" class="modal hidden">
-            <div class="modal-content pixel-box">
-                <h2>SELECT DIFFICULTY</h2>
-                <div class="difficulty-options">
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('easy')">[ 🟢 ] EASY (2 LIES)</button>
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('medium')">[ 🟡 ] MEDIUM (4 LIES)</button>
-                    <button class="pixel-btn btn-diff" onclick="startArcadeGame('hard')">[ 🟠 ] HARD (5 LIES)</button>
-                    <button class="pixel-btn btn-diff btn-danger" onclick="startArcadeGame('extreme')">[ 🔴 ] EXTREME (6 LIES)</button>
+            <div class="modal-card">
+                <h2>CHOOSE DIFFICULTY</h2>
+                <p class="modal-sub">More lies mean higher score multipliers!</p>
+                <div class="difficulty-list">
+                    <button class="arcade-btn diff-btn easy" onclick="playClick(); startArcadeGame('easy')">🟢 EASY <span class="sub-tag">2 Lies</span></button>
+                    <button class="arcade-btn diff-btn med" onclick="playClick(); startArcadeGame('medium')">🟡 MEDIUM <span class="sub-tag">4 Lies</span></button>
+                    <button class="arcade-btn diff-btn hard" onclick="playClick(); startArcadeGame('hard')">🟠 HARD <span class="sub-tag">5 Lies</span></button>
+                    <button class="arcade-btn diff-btn ext" onclick="playClick(); startArcadeGame('extreme')">🔴 EXTREME <span class="sub-tag">6 Lies</span></button>
                 </div>
-                <button class="pixel-btn" onclick="closeModal('difficulty-modal')">CANCEL</button>
+                <button class="arcade-btn btn-close" onclick="playClick(); closeModal('difficulty-modal')">Cancel</button>
             </div>
         </div>
 
         <!-- GAMEPLAY SCREEN -->
         <div id="game-screen" class="screen hidden">
-            <!-- Header Bar -->
-            <header class="pixel-box header-bar">
-                <div class="header-top">
-                    <button class="pixel-btn btn-small" onclick="returnToMenu()">[ ◀ ] MENU</button>
-                    <span id="game-mode-badge" class="mode-badge">DAILY #1</span>
-                    <span class="sound-toggle" onclick="toggleAudio()">[ 🔊 ] FX</span>
-                </div>
-                <div class="timer-track">
-                    <div id="timer-fill" class="timer-fill"></div>
-                </div>
+            <header class="game-header">
+                <button class="arcade-btn btn-sm" onclick="playClick(); returnToMenu()">◀ Menu</button>
+                <span id="game-mode-badge" class="game-badge">DAILY #1</span>
+                <button class="arcade-btn btn-sm" onclick="playClick(); toggleAudio()"><span id="audio-icon">🔊</span> FX</button>
             </header>
 
+            <div class="timer-bar-container">
+                <div id="timer-fill" class="timer-fill"></div>
+            </div>
+
             <!-- HUD Stats -->
-            <div class="hud-bar">
-                <div class="hud-item">
-                    <span class="hud-label">SCORE</span>
+            <div class="hud-container">
+                <div class="hud-box">
+                    <span class="hud-title">SCORE</span>
                     <span id="hud-score" class="hud-val">1000</span>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">GUESSES</span>
+                <div class="hud-box">
+                    <span class="hud-title">TRIES</span>
                     <span id="hud-guesses" class="hud-val">3</span>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">BURNS</span>
+                <div class="hud-box">
+                    <span class="hud-title">BURNS</span>
                     <span id="hud-burns" class="hud-val">2</span>
                 </div>
-                <div class="hud-item">
-                    <span class="hud-label">TIME</span>
+                <div class="hud-box">
+                    <span class="hud-title">TIME</span>
                     <span id="hud-time" class="hud-val">45</span>
                 </div>
             </div>
 
             <!-- Status Ticker -->
             <div id="status-banner" class="status-banner">
-                DEALT! FLIP CARDS AND DEDUCE THE TARGET.
+                Dealt! Flip cards and deduce the target.
             </div>
 
-            <!-- Symmetrical Card Grid -->
+            <!-- Symmetrical Cartoony Card Grid -->
             <main class="card-grid" id="card-grid">
                 <!-- Injected via script.js -->
             </main>
 
             <!-- Guess Input Area -->
-            <section class="guess-section pixel-box">
-                <div class="input-row">
+            <section class="guess-container">
+                <div class="input-wrapper">
                     <input type="text" id="guess-input" placeholder="TYPE SECRET WORD..." autocomplete="off" spellcheck="false">
-                    <button id="btn-submit" class="pixel-btn btn-accent" onclick="submitGuess()">LOCK IN</button>
+                    <button class="arcade-btn btn-submit" onclick="playClick(); submitGuess()">LOCK IN</button>
                 </div>
             </section>
         </div>
 
-        <!-- SHOP MODAL -->
-        <div id="shop-modal" class="modal hidden">
-            <div class="modal-content pixel-box">
-                <h2>[ 🛒 ] INVENTORY SHOP</h2>
-                <p class="modal-desc">Unlock custom card skins, backgrounds, and active abilities using arcade tokens.</p>
-                <div class="shop-placeholder-box">
-                    <p>[ 🚧 ] SHOP ITEMS COMING SOON [ 🚧 ]</p>
+        <!-- ACCOUNT AUTHENTICATION MODAL -->
+        <div id="account-modal" class="modal hidden">
+            <div class="modal-card">
+                <h2>PLAYER ACCOUNT</h2>
+                <div id="auth-logged-out" class="auth-box">
+                    <p class="modal-sub">Log in to save your streaks, stats, and profile tokens!</p>
+                    <input type="text" id="auth-user-input" class="auth-input" placeholder="Enter Username..." autocomplete="off">
+                    <input type="password" id="auth-pass-input" class="auth-input" placeholder="Enter Password...">
+                    <button class="arcade-btn btn-action" onclick="playClick(); handleLogin()">LOGIN / SIGN UP</button>
+                    <div class="auth-divider"><span>OR</span></div>
+                    <button class="arcade-btn google-btn" onclick="playClick(); handleGoogleLogin()">🌐 Sign in with Google</button>
                 </div>
-                <button class="pixel-btn btn-accent" onclick="closeModal('shop-modal')">CLOSE</button>
+                <div id="auth-logged-in" class="auth-box hidden">
+                    <div class="profile-pill">
+                        <span id="profile-avatar">👤</span>
+                        <div>
+                            <h3 id="profile-name">atomicButter</h3>
+                            <span class="profile-status">Verified Operative</span>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="p-stat"><span>Wins</span><strong id="acc-wins">0</strong></div>
+                        <div class="p-stat"><span>Streak</span><strong id="acc-streak">0</strong></div>
+                        <div class="p-stat"><span>Tokens</span><strong>🪙 250</strong></div>
+                    </div>
+                    <button class="arcade-btn btn-danger" onclick="playClick(); handleLogout()">Log Out</button>
+                </div>
+                <button class="arcade-btn btn-close" onclick="playClick(); closeModal('account-modal')">Close</button>
             </div>
         </div>
 
-        <!-- ACCOUNT MODAL -->
-        <div id="account-modal" class="modal hidden">
-            <div class="modal-content pixel-box">
-                <h2>[ 👤 ] PLAYER PROFILE</h2>
-                <div class="account-details">
-                    <p><strong>ALIAS:</strong> atomicButter</p>
-                    <p><strong>TOTAL WINS:</strong> <span id="acc-wins">0</span></p>
-                    <p><strong>STREAK:</strong> <span id="acc-streak">0</span></p>
-                    <p><strong>TOKENS:</strong> 🪙 250</p>
+        <!-- SHOP MODAL -->
+        <div id="shop-modal" class="modal hidden">
+            <div class="modal-card">
+                <h2>ITEM SHOP</h2>
+                <p class="modal-sub">Spend earned arcade tokens on custom card skins & themes.</p>
+                <div class="shop-grid">
+                    <div class="shop-item locked">
+                        <div class="item-icon">🌌</div>
+                        <h4>Void Nebula</h4>
+                        <span>🪙 500 Tokens</span>
+                    </div>
+                    <div class="shop-item locked">
+                        <div class="item-icon">🔥</div>
+                        <h4>Hellfire Deck</h4>
+                        <span>🪙 750 Tokens</span>
+                    </div>
                 </div>
-                <button class="pixel-btn btn-accent" onclick="closeModal('account-modal')">CLOSE</button>
+                <button class="arcade-btn btn-close" onclick="playClick(); closeModal('shop-modal')">Close</button>
             </div>
         </div>
 
         <!-- SETTINGS MODAL -->
         <div id="settings-modal" class="modal hidden">
-            <div class="modal-content pixel-box">
-                <h2>[ ⚙️ ] GAME SETTINGS</h2>
-                <div class="settings-options">
+            <div class="modal-card">
+                <h2>SETTINGS</h2>
+                <div class="settings-list">
                     <div class="setting-row">
-                        <span>THEME MODE</span>
-                        <button class="pixel-btn btn-small" onclick="toggleTheme()">[ ☀️ / 🌙 ] TOGGLE</button>
+                        <span>Theme Mode</span>
+                        <button class="arcade-btn btn-sm" onclick="playClick(); toggleTheme()">☀️ / 🌙 Switch</button>
                     </div>
                     <div class="setting-row">
-                        <span>SOUND FX</span>
-                        <button class="pixel-btn btn-small" onclick="toggleAudio()">[ 🔊 ] TOGGLE</button>
+                        <span>Audio Sound FX</span>
+                        <button class="arcade-btn btn-sm" onclick="playClick(); toggleAudio()">🔊 Toggle</button>
                     </div>
                 </div>
-                <button class="pixel-btn btn-accent" onclick="closeModal('settings-modal')">SAVE & CLOSE</button>
+                <button class="arcade-btn btn-close" onclick="playClick(); closeModal('settings-modal')">Save & Close</button>
             </div>
         </div>
 
         <!-- HOW TO PLAY MODAL -->
         <div id="instructions-modal" class="modal hidden">
-            <div class="modal-content pixel-box">
-                <h2>[ 📜 ] HOW TO PLAY</h2>
+            <div class="modal-card">
+                <h2>HOW TO PLAY</h2>
                 <div class="instructions-body">
-                    <p>🎯 <strong>THE GOAL:</strong> Deduce the secret word using clues.</p>
-                    <p>🃏 <strong>CARDS:</strong> Uncover cards while dodging hidden Smokescreens (Lies).</p>
-                    <p>🔥 <strong>BURN ABILITY:</strong> Suspect a lie? Hit <strong>BURN</strong> to incinerate it.</p>
-                    <p>⏱️ <strong>TIME PRESSURE:</strong> Beat the timer before points drain away!</p>
+                    <p>🎯 <strong>Objective:</strong> Deduce the secret word from the active clues.</p>
+                    <p>🃏 <strong>The Catch:</strong> Some cards are deceptive <strong>Smokescreen Lies</strong> pulled from other words!</p>
+                    <p>🔥 <strong>Burn Ability:</strong> Flip suspicious cards and click <strong>BURN</strong> to incinerate them with real flame particle effects.</p>
+                    <p>⏱️ <strong>Pressure:</strong> Beat the countdown timer before score points drain away!</p>
                 </div>
-                <button class="pixel-btn btn-accent" onclick="toggleInstructions(false)">GOT IT</button>
+                <button class="arcade-btn btn-close" onclick="playClick(); toggleInstructions(false)">Got It!</button>
             </div>
         </div>
 
         <!-- END ROUND MODAL -->
         <div id="end-modal" class="modal hidden">
-            <div class="modal-content pixel-box end-modal-box">
-                <div class="end-header">
-                    <span id="end-icon" class="end-icon">[ 🏆 ]</span>
-                    <h2 id="modal-title">CASE SOLVED</h2>
-                </div>
+            <div class="modal-card end-card">
+                <div id="end-icon" class="end-icon">🏆</div>
+                <h2 id="modal-title">CASE SOLVED</h2>
                 
-                <div class="end-score-card">
-                    <span class="end-label">FINAL SCORE</span>
-                    <span id="end-final-score" class="end-score-val">1000 PTS</span>
+                <div class="score-banner">
+                    <span class="s-label">FINAL SCORE</span>
+                    <span id="end-final-score" class="s-value">1000 PTS</span>
                     <div id="rank-badge" class="rank-badge">RANK: S</div>
                 </div>
 
-                <div class="end-details">
-                    <p class="reveal-label">SECRET TARGET:</p>
-                    <div id="modal-answer" class="reveal-word">MICROWAVE</div>
-                    <p id="modal-stats" class="modal-stats">Completed successfully</p>
+                <div class="reveal-box">
+                    <span>SECRET TARGET:</span>
+                    <strong id="modal-answer">MICROWAVE</strong>
                 </div>
 
+                <p id="modal-stats" class="modal-stats">Perfect deduction run.</p>
+
                 <div class="modal-actions">
-                    <button id="btn-share" class="pixel-btn btn-accent" onclick="copyShareText()">[ 📋 ] COPY SCORE</button>
-                    <button class="pixel-btn" onclick="returnToMenu()">MAIN MENU</button>
+                    <button id="btn-share" class="arcade-btn btn-action" onclick="playClick(); copyShareText()">📋 Copy Score</button>
+                    <button class="arcade-btn btn-close" onclick="playClick(); returnToMenu()">Main Menu</button>
                 </div>
             </div>
         </div>
