@@ -1,9 +1,9 @@
 :root {
-    --bg-void: #020205;
-    --bg-panel: #0a0a12;
-    --bg-card-back: #10101a;
-    --bg-card-front: #161624;
-    --border-dark: #1e1e30;
+    --bg-void: #030307;
+    --bg-panel: #0b0b14;
+    --bg-card-back: #121220;
+    --bg-card-front: #19192c;
+    --border-dark: #202035;
     --border-light: #52527a;
     --accent-cyan: #00f0ff;
     --accent-green: #2ce865;
@@ -31,29 +31,26 @@ body {
     align-items: center;
     overflow-x: hidden;
     background-image: 
-        radial-gradient(#141421 2px, transparent 2px),
-        radial-gradient(#08080f 2px, var(--bg-void) 2px);
-    background-size: 28px 28px;
-    background-position: 0 0, 14px 14px;
+        radial-gradient(#161625 2px, transparent 2px),
+        radial-gradient(#090912 2px, var(--bg-void) 2px);
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 16px;
 }
 
-/* Highly Transparent, Non-Intrusive Scanlines */
+/* Crisp, Clean Overlay */
 .crt-overlay {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 999;
-    background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.15) 50%
-    );
+    background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.08) 50%);
     background-size: 100% 4px;
 }
 
 .game-wrapper {
     width: 100%;
-    max-width: 840px;
-    padding: 16px;
+    max-width: 860px;
+    padding: 20px;
     position: relative;
     z-index: 2;
 }
@@ -62,7 +59,7 @@ body {
     display: none;
     flex-direction: column;
     gap: 16px;
-    animation: screenFadeIn 0.3s steps(3);
+    animation: screenFadeIn 0.2s ease-out;
 }
 
 .screen.active-screen {
@@ -70,17 +67,17 @@ body {
 }
 
 @keyframes screenFadeIn {
-    0% { opacity: 0; transform: scale(0.99); }
-    100% { opacity: 1; transform: scale(1); }
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 .pixel-box {
     background: var(--bg-panel);
     border: 4px solid var(--border-light);
     box-shadow: 
-        inset 0 0 0 2px #05050a,
-        0 8px 0 #010103;
-    padding: 22px;
+        inset 0 0 0 2px #06060c,
+        0 8px 0 #010104;
+    padding: 24px;
 }
 
 /* Main Menu Screen */
@@ -89,14 +86,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding: 40px 24px;
+    padding: 44px 24px;
 }
 
 .menu-header {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
 }
 
 .glow-title {
@@ -119,7 +116,7 @@ body {
     gap: 32px;
     font-size: 24px;
     color: var(--text-dim);
-    background: #06060a;
+    background: #06060c;
     padding: 12px;
     border: 2px solid var(--border-dark);
 }
@@ -128,7 +125,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    margin-top: 10px;
 }
 
 .btn-huge {
@@ -165,7 +161,7 @@ body {
 .timer-track {
     width: 100%;
     height: 10px;
-    background: #030305;
+    background: #040408;
     border: 2px solid var(--border-dark);
     overflow: hidden;
 }
@@ -182,22 +178,22 @@ body {
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
     padding: 12px 16px;
-    background: #12121f;
+    background: #141424;
     color: var(--text-main);
     border: 3px solid var(--border-light);
-    box-shadow: 0 4px 0 #020204;
+    box-shadow: 0 4px 0 #020205;
     cursor: pointer;
-    transition: transform 0.08s steps(2), background 0.15s;
+    transition: transform 0.06s ease, background 0.12s;
 }
 
 .pixel-btn:hover:not(.locked) {
-    background: #1c1c30;
+    background: #1f1f38;
     border-color: var(--accent-cyan);
 }
 
 .pixel-btn:active:not(.locked) {
     transform: translateY(4px);
-    box-shadow: 0 0 0 #020204;
+    box-shadow: 0 0 0 #020205;
 }
 
 .pixel-btn.locked {
@@ -207,13 +203,13 @@ body {
 }
 
 .btn-accent {
-    background: #0e301d;
+    background: #0e351f;
     border-color: var(--accent-green);
     color: var(--accent-green);
 }
 
 .btn-accent:hover {
-    background: #14452a !important;
+    background: #154d2c !important;
 }
 
 .btn-small {
@@ -251,7 +247,7 @@ body {
 
 /* Status Banner */
 .status-banner {
-    background: #06060b;
+    background: #06060c;
     border-left: 5px solid var(--accent-cyan);
     padding: 12px 16px;
     font-size: 24px;
@@ -262,27 +258,29 @@ body {
     align-items: center;
 }
 
-/* 8-Card Fan Grid with auto-rearranging gaps */
+/* Symmetrical Centered Card Grid */
 .card-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 14px;
     perspective: 1200px;
-    min-height: 360px;
-}
-
-@media (max-width: 640px) {
-    .card-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    min-height: 380px;
+    padding: 10px 0;
 }
 
 .card-slot {
-    height: 180px;
+    width: calc(25% - 11px);
+    height: 185px;
     position: relative;
     cursor: pointer;
-    animation: dealCardSpread 0.4s cubic-bezier(0.15, 0.85, 0.35, 1.2) backwards;
-    transition: all 0.3s cubic-bezier(0.2, 0.85, 0.3, 1.15);
+    transition: transform 0.25s cubic-bezier(0.2, 0.85, 0.3, 1.15);
+}
+
+@media (max-width: 720px) {
+    .card-slot {
+        width: calc(50% - 8px);
+    }
 }
 
 .card-inner {
@@ -290,7 +288,7 @@ body {
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.3, 1.15);
+    transition: transform 0.35s cubic-bezier(0.2, 0.85, 0.3, 1.15);
 }
 
 .card-slot.flipped .card-inner {
@@ -308,25 +306,25 @@ body {
     align-items: center;
     padding: 14px;
     text-align: center;
-    box-shadow: 0 6px 0 #010103;
+    box-shadow: 0 6px 0 #010104;
 }
 
 .card-back {
     background: var(--bg-card-back);
     background-image: repeating-linear-gradient(
         45deg,
-        #090910,
-        #090910 8px,
-        #12121c 8px,
-        #12121c 16px
+        #0a0a14,
+        #0a0a14 8px,
+        #141424 8px,
+        #141424 16px
     );
-    transition: border-color 0.15s, transform 0.15s steps(2);
+    transition: border-color 0.15s, transform 0.15s ease;
 }
 
 .card-slot:not(.flipped):hover .card-back {
     border-color: var(--accent-cyan);
-    transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 12px 0 #010103, 0 0 18px rgba(0, 240, 255, 0.3);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 0 #010104, 0 0 16px rgba(0, 240, 255, 0.25);
 }
 
 .card-number {
@@ -360,7 +358,7 @@ body {
 .burn-btn {
     font-family: 'Press Start 2P', monospace;
     font-size: 10px;
-    background: #380d16;
+    background: #3b0d18;
     color: var(--accent-red);
     border: 2px solid var(--accent-red);
     padding: 8px;
@@ -374,17 +372,16 @@ body {
     color: #fff;
 }
 
-/* Real Flame Burning Animation */
+/* Silky Smooth Spark Dissolve Burn Animation */
 .card-slot.is-burning {
-    animation: cardBurnShrink 0.6s steps(6) forwards !important;
+    animation: dissolveSparks 0.45s ease-out forwards !important;
     pointer-events: none;
 }
 
-@keyframes cardBurnShrink {
-    0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-    30% { transform: scale(1.05) rotate(3deg); filter: brightness(2.5) sepia(1) saturate(5) hue-rotate(-30deg); }
-    70% { transform: scale(0.6) translateY(20px) rotate(-5deg); opacity: 0.8; filter: brightness(3) grayscale(0.5); }
-    100% { transform: scale(0) translateY(40px); opacity: 0; width: 0; margin: 0; padding: 0; border: none; }
+@keyframes dissolveSparks {
+    0% { transform: scale(1) rotate(0deg); opacity: 1; filter: brightness(1); }
+    40% { transform: scale(1.1) rotate(4deg); opacity: 0.8; filter: brightness(2.5) sepia(1) saturate(5); }
+    100% { transform: scale(0.3) translateY(25px) rotate(-10deg); opacity: 0; filter: brightness(4); width: 0; margin: 0; padding: 0; border: none; }
 }
 
 /* Guess Input */
@@ -395,7 +392,7 @@ body {
 
 input[type="text"] {
     flex: 1;
-    background: #030306;
+    background: #040408;
     border: 3px solid var(--border-light);
     color: var(--accent-cyan);
     font-family: 'Press Start 2P', monospace;
@@ -410,16 +407,74 @@ input[type="text"]:focus {
     box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
 }
 
-/* Modals */
+/* Redesigned End-Game Modal */
+.end-modal-box {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 32px 24px;
+}
+
+.end-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.end-icon { font-size: 28px; }
+
+.end-score-card {
+    background: #06060c;
+    border: 3px solid var(--border-light);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.end-label { font-size: 18px; color: var(--text-dim); }
+.end-score-val {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    color: var(--accent-green);
+}
+
+.rank-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--accent-amber);
+    margin-top: 4px;
+}
+
+.end-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reveal-label { color: var(--text-dim); font-size: 18px; }
+.reveal-word {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 24px;
+    color: var(--accent-amber);
+    text-shadow: 2px 2px 0 #000;
+}
+
+.modal-stats { font-size: 20px; color: var(--text-main); }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
+
+/* Modals General */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(1, 1, 3, 0.88);
+    background: rgba(2, 2, 6, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 100;
-    padding: 16px;
+    padding: 20px;
 }
 
 .modal.hidden { display: none; }
@@ -431,7 +486,7 @@ input[type="text"]:focus {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    animation: popIn 0.25s steps(3);
+    animation: popIn 0.2s ease-out;
 }
 
 .modal-content h2 {
@@ -451,52 +506,27 @@ input[type="text"]:focus {
 
 .instructions-body strong { color: var(--text-main); }
 
-.reveal-label { color: var(--text-dim); font-size: 18px; }
-.reveal-word {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 24px;
-    color: var(--accent-amber);
-    text-shadow: 2px 2px 0 #000;
-}
-
-.emoji-grid {
-    font-size: 28px;
-    letter-spacing: 4px;
-    background: #030306;
-    padding: 16px;
-    border: 3px solid var(--border-light);
-}
-
-.modal-stats { font-size: 24px; color: var(--text-main); }
-.modal-actions { display: flex; gap: 12px; justify-content: center; }
-
-/* Animations */
-@keyframes dealCardSpread {
-    0% { opacity: 0; transform: translateY(40px) scale(0.8); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
 @keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
+    0% { transform: scale(0.9); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
-.shake { animation: screenShake 0.35s steps(2); }
+.shake { animation: screenShake 0.3s ease-in-out; }
 
 @keyframes screenShake {
     0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(-8px, 6px); }
-    50% { transform: translate(8px, -6px); }
-    75% { transform: translate(-5px, -3px); }
+    25% { transform: translate(-6px, 4px); }
+    50% { transform: translate(6px, -4px); }
+    75% { transform: translate(-4px, -2px); }
 }
 
 .pixel-particle {
     position: fixed;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     pointer-events: none;
     z-index: 998;
-    animation: particleBurst 0.6s steps(6) forwards;
+    animation: particleBurst 0.5s ease-out forwards;
 }
 
 @keyframes particleBurst {
