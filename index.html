@@ -1,1 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMOKESCREEN // DAILY DEDUCTION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Retro CRT Scanline & Vignette Overlay -->
+    <div class="crt-overlay"></div>
+    <div id="particle-container"></div>
 
+    <div class="game-wrapper" id="game-wrapper">
+        <!-- Header & Mode Switcher -->
+        <header class="pixel-box header">
+            <div class="title-row">
+                <span class="flame-icon">🔥</span>
+                <h1>SMOKESCREEN</h1>
+                <span class="flame-icon">🔥</span>
+            </div>
+            <p class="subtitle">6 TRUTHS // 2 LIES // TRUST NOTHING</p>
+            
+            <div class="mode-bar">
+                <button id="btn-daily" class="pixel-btn active" onclick="switchMode('daily')">
+                    DAILY #<span id="daily-number">1</span>
+                </button>
+                <button id="btn-arcade" class="pixel-btn locked" onclick="switchMode('arcade')">
+                    🔒 ARCADE
+                </button>
+            </div>
+        </header>
+
+        <!-- HUD Stats -->
+        <div class="hud-bar">
+            <div class="hud-item">
+                <span class="hud-label">SCORE</span>
+                <span id="hud-score" class="hud-val">1000</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">GUESSES</span>
+                <span id="hud-guesses" class="hud-val">3</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">BURNS</span>
+                <span id="hud-burns" class="hud-val">2</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">STREAK</span>
+                <span id="hud-streak" class="hud-val">0</span>
+            </div>
+        </div>
+
+        <!-- Status Ticker -->
+        <div id="status-banner" class="status-banner">
+            TAP A CARD TO FLIP A CLUE...
+        </div>
+
+        <!-- 8-Card Grid -->
+        <main class="card-grid" id="card-grid">
+            <!-- Cards injected by script.js -->
+        </main>
+
+        <!-- Guess Input Area -->
+        <section class="guess-section pixel-box" id="guess-section">
+            <div class="input-row">
+                <input type="text" id="guess-input" placeholder="TYPE SECRET WORD..." autocomplete="off" spellcheck="false">
+                <button id="btn-submit" class="pixel-btn btn-accent" onclick="submitGuess()">LOCK IN</button>
+            </div>
+        </section>
+
+        <!-- End-of-Round Modal -->
+        <div id="end-modal" class="modal hidden">
+            <div class="modal-content pixel-box">
+                <h2 id="modal-title">CASE SOLVED</h2>
+                <p class="reveal-label">THE SECRET TARGET WAS:</p>
+                <div id="modal-answer" class="reveal-word">MICROWAVE</div>
+                
+                <div id="emoji-grid" class="emoji-grid"></div>
+                <p id="modal-stats" class="modal-stats"></p>
+
+                <div class="modal-actions">
+                    <button id="btn-share" class="pixel-btn btn-accent" onclick="copyShareText()">📋 COPY RESULT</button>
+                    <button id="btn-next-arcade" class="pixel-btn" onclick="startArcadeRound()">▶ NEXT ARCADE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
