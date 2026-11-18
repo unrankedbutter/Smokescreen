@@ -1,16 +1,16 @@
 :root {
-    --bg-void: #07070b;
-    --bg-panel: #101018;
-    --bg-card-back: #161622;
-    --bg-card-front: #1c1c2b;
-    --border-dark: #2c2c40;
-    --border-light: #4e4e73;
+    --bg-void: #040407;
+    --bg-panel: #0d0d14;
+    --bg-card-back: #12121c;
+    --bg-card-front: #181826;
+    --border-dark: #222233;
+    --border-light: #52527a;
     --accent-cyan: #00f0ff;
     --accent-green: #2ce865;
     --accent-red: #ff2a55;
     --accent-amber: #ffaa00;
-    --text-main: #e6e6f2;
-    --text-dim: #7b7b9e;
+    --text-main: #f0f0ff;
+    --text-dim: #9494b8;
 }
 
 * {
@@ -28,13 +28,13 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     overflow-x: hidden;
     background-image: 
-        radial-gradient(#1b1b29 1px, transparent 1px),
-        radial-gradient(#12121c 1px, var(--bg-void) 1px);
-    background-size: 24px 24px;
-    background-position: 0 0, 12px 12px;
+        radial-gradient(#151522 1.5px, transparent 1.5px),
+        radial-gradient(#090910 1.5px, var(--bg-void) 1.5px);
+    background-size: 32px 32px;
+    background-position: 0 0, 16px 16px;
 }
 
 /* CRT Scanlines & Vignette */
@@ -45,114 +45,181 @@ body {
     z-index: 999;
     background: linear-gradient(
         rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.35) 50%
-    ), radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.75) 100%);
+        rgba(0, 0, 0, 0.4) 50%
+    ), radial-gradient(circle, transparent 55%, rgba(0, 0, 0, 0.8) 100%);
     background-size: 100% 4px, 100% 100%;
 }
 
 .game-wrapper {
     width: 100%;
-    max-width: 680px;
+    max-width: 720px;
     padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
     position: relative;
     z-index: 2;
+}
+
+.screen {
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    animation: screenFadeIn 0.3s steps(3);
+}
+
+.screen.active-screen {
+    display: flex;
+}
+
+@keyframes screenFadeIn {
+    0% { opacity: 0; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
 /* Pixelated Stepped Borders */
 .pixel-box {
     background: var(--bg-panel);
-    border: 4px solid var(--border-dark);
+    border: 4px solid var(--border-light);
     box-shadow: 
-        inset 0 0 0 2px #09090f,
-        0 6px 0 #040407;
-    padding: 14px;
+        inset 0 0 0 2px #07070d,
+        0 8px 0 #020205;
+    padding: 18px;
 }
 
-/* Header */
-.header {
+/* Main Menu Screen */
+.menu-box {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 32px 20px;
 }
 
-.title-row {
+.menu-header {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 12px;
+}
+
+.glow-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(20px, 5vw, 28px);
+    color: var(--text-main);
+    text-shadow: 4px 4px 0px var(--accent-red), -2px -2px 0px #151522;
+    letter-spacing: 3px;
+}
+
+.menu-subtitle {
+    color: var(--accent-cyan);
+    font-size: 22px;
+    letter-spacing: 2px;
+}
+
+.menu-stats-preview {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    font-size: 22px;
+    color: var(--text-dim);
+    background: #08080f;
+    padding: 10px;
+    border: 2px solid var(--border-dark);
+}
+
+.menu-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-huge {
+    font-size: 13px;
+    padding: 16px;
+    width: 100%;
+}
+
+/* Header & Timer Bar */
+.header-bar {
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
 
-h1 {
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(16px, 4vw, 24px);
-    color: var(--text-main);
-    text-shadow: 3px 3px 0px var(--accent-red), -2px -2px 0px #1e1e2e;
-    letter-spacing: 2px;
-}
-
-.flame-icon {
-    font-size: 20px;
-    animation: pixelFloat 1.2s steps(2, end) infinite alternate;
-}
-
-.subtitle {
-    color: var(--text-dim);
-    font-size: 18px;
-    letter-spacing: 2px;
-    margin-top: 6px;
-}
-
-.mode-bar {
+.header-top {
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 12px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mode-badge {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--accent-cyan);
+}
+
+.sound-toggle {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.timer-track {
+    width: 100%;
+    height: 8px;
+    background: #050508;
+    border: 2px solid var(--border-dark);
+    overflow: hidden;
+}
+
+.timer-fill {
+    width: 100%;
+    height: 100%;
+    background: var(--accent-cyan);
+    transition: width 1s linear, background 0.3s;
 }
 
 /* Pixel Buttons */
 .pixel-btn {
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
-    padding: 10px 14px;
-    background: #1b1b29;
+    padding: 12px 16px;
+    background: #141421;
     color: var(--text-main);
     border: 3px solid var(--border-light);
-    box-shadow: 0 4px 0 #06060a;
+    box-shadow: 0 4px 0 #030306;
     cursor: pointer;
     transition: transform 0.08s steps(2), background 0.15s;
 }
 
 .pixel-btn:hover:not(.locked) {
-    background: #26263a;
+    background: #202035;
     border-color: var(--accent-cyan);
 }
 
 .pixel-btn:active:not(.locked) {
     transform: translateY(4px);
-    box-shadow: 0 0 0 #06060a;
-}
-
-.pixel-btn.active {
-    background: #232336;
-    border-color: var(--accent-cyan);
-    color: var(--accent-cyan);
+    box-shadow: 0 0 0 #030306;
 }
 
 .pixel-btn.locked {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
     border-color: var(--border-dark);
 }
 
 .btn-accent {
-    background: #143625;
+    background: #123824;
     border-color: var(--accent-green);
     color: var(--accent-green);
 }
 
 .btn-accent:hover {
-    background: #1b4d34 !important;
+    background: #194f32 !important;
+}
+
+.btn-small {
+    font-size: 9px;
+    padding: 6px 10px;
 }
 
 /* HUD Bar */
@@ -164,14 +231,14 @@ h1 {
 
 .hud-item {
     background: var(--bg-panel);
-    border: 3px solid var(--border-dark);
+    border: 3px solid var(--border-light);
     padding: 8px 4px;
     text-align: center;
 }
 
 .hud-label {
     display: block;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text-dim);
 }
 
@@ -185,38 +252,39 @@ h1 {
 
 /* Status Banner */
 .status-banner {
-    background: #0d0d14;
+    background: #08080e;
     border-left: 4px solid var(--accent-cyan);
-    padding: 8px 12px;
-    font-size: 20px;
+    padding: 10px 14px;
+    font-size: 22px;
     color: var(--accent-cyan);
     letter-spacing: 1px;
-    min-height: 38px;
+    min-height: 42px;
     display: flex;
     align-items: center;
 }
 
-/* 8-Card Grid */
+/* Balatro-Style 8-Card Fan Grid */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    perspective: 1000px;
+    perspective: 1200px;
+    min-height: 330px;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 580px) {
     .card-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
     }
 }
 
-/* Card Container & 3D Flip Animation */
 .card-slot {
-    height: 155px;
+    height: 165px;
     position: relative;
     cursor: pointer;
-    animation: dealCard 0.4s steps(4) backwards;
+    /* Balatro card dealing sweep animation */
+    animation: dealCardSpread 0.5s cubic-bezier(0.15, 0.85, 0.35, 1.2) backwards;
+    transform-origin: bottom center;
 }
 
 .card-inner {
@@ -224,7 +292,7 @@ h1 {
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.35s cubic-bezier(0.2, 0.85, 0.3, 1.15);
+    transition: transform 0.4s cubic-bezier(0.2, 0.85, 0.3, 1.15);
 }
 
 .card-slot.flipped .card-inner {
@@ -235,33 +303,32 @@ h1 {
     position: absolute;
     inset: 0;
     backface-visibility: hidden;
-    border: 4px solid var(--border-dark);
+    border: 4px solid var(--border-light);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
-    box-shadow: 0 5px 0 #040407;
+    box-shadow: 0 6px 0 #020205;
 }
 
-/* Card Back (Face Down) */
 .card-back {
     background: var(--bg-card-back);
     background-image: repeating-linear-gradient(
         45deg,
-        #12121c,
-        #12121c 6px,
-        #191926 6px,
-        #191926 12px
+        #0c0c14,
+        #0c0c14 8px,
+        #151522 8px,
+        #151522 16px
     );
     transition: border-color 0.15s, transform 0.15s steps(2);
 }
 
 .card-slot:not(.flipped):hover .card-back {
     border-color: var(--accent-cyan);
-    transform: translateY(-4px);
-    box-shadow: 0 9px 0 #040407, 0 0 12px rgba(0, 240, 255, 0.25);
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 12px 0 #020205, 0 0 16px rgba(0, 240, 255, 0.3);
 }
 
 .card-number {
@@ -272,12 +339,11 @@ h1 {
 
 .card-qmark {
     font-family: 'Press Start 2P', monospace;
-    font-size: 24px;
+    font-size: 26px;
     color: var(--border-light);
     margin-top: 8px;
 }
 
-/* Card Front (Revealed Clue) */
 .card-front {
     background: var(--bg-card-front);
     border-color: var(--border-light);
@@ -286,19 +352,20 @@ h1 {
 }
 
 .clue-text {
-    font-size: 19px;
-    line-height: 1.15;
+    font-size: 21px;
+    line-height: 1.2;
     color: var(--text-main);
     margin: auto 0;
+    text-shadow: 1px 1px 0 #000;
 }
 
 .burn-btn {
     font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
-    background: #2b1118;
+    font-size: 10px;
+    background: #331018;
     color: var(--accent-red);
     border: 2px solid var(--accent-red);
-    padding: 5px 8px;
+    padding: 6px;
     cursor: pointer;
     width: 100%;
     transition: background 0.1s;
@@ -309,36 +376,28 @@ h1 {
     color: #fff;
 }
 
-/* Burned Card States */
 .card-slot.burned-lie .card-front {
-    background: #291015;
+    background: #2b0c12;
     border-color: var(--accent-red);
-    animation: burnFlash 0.4s steps(3);
 }
 
 .card-slot.burned-truth .card-front {
-    background: #1a1a24;
-    border-color: #555;
-    opacity: 0.65;
-    animation: burnFlash 0.4s steps(3);
+    background: #14141c;
+    border-color: #444;
+    opacity: 0.6;
 }
 
 .burn-badge {
     font-family: 'Press Start 2P', monospace;
-    font-size: 9px;
+    font-size: 10px;
     padding: 4px;
     width: 100%;
 }
 
-.badge-lie {
-    color: var(--accent-amber);
-}
+.badge-lie { color: var(--accent-amber); }
+.badge-truth { color: var(--text-dim); }
 
-.badge-truth {
-    color: var(--text-dim);
-}
-
-/* Guess Input Section */
+/* Guess Input */
 .input-row {
     display: flex;
     gap: 10px;
@@ -346,26 +405,26 @@ h1 {
 
 input[type="text"] {
     flex: 1;
-    background: #08080d;
+    background: #050508;
     border: 3px solid var(--border-light);
     color: var(--accent-cyan);
     font-family: 'Press Start 2P', monospace;
-    font-size: 12px;
-    padding: 12px;
+    font-size: 14px;
+    padding: 14px;
     outline: none;
     text-transform: uppercase;
 }
 
 input[type="text"]:focus {
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
 }
 
-/* Modal */
+/* Modals */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(4, 4, 8, 0.88);
+    background: rgba(2, 2, 5, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -373,14 +432,15 @@ input[type="text"]:focus {
     padding: 16px;
 }
 
-.modal.hidden {
-    display: none;
-}
+.modal.hidden { display: none; }
 
 .modal-content {
     width: 100%;
-    max-width: 440px;
+    max-width: 460px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     animation: popIn 0.25s steps(3);
 }
 
@@ -388,57 +448,44 @@ input[type="text"]:focus {
     font-family: 'Press Start 2P', monospace;
     font-size: 18px;
     color: var(--accent-green);
-    margin-bottom: 14px;
 }
 
-.modal-content.lost h2 {
-    color: var(--accent-red);
-}
-
-.reveal-label {
+.instructions-body {
+    text-align: left;
+    font-size: 21px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     color: var(--text-dim);
-    font-size: 18px;
 }
 
+.instructions-body strong {
+    color: var(--text-main);
+}
+
+.reveal-label { color: var(--text-dim); font-size: 18px; }
 .reveal-word {
     font-family: 'Press Start 2P', monospace;
-    font-size: 20px;
+    font-size: 22px;
     color: var(--accent-amber);
-    margin: 8px 0 16px;
     text-shadow: 2px 2px 0 #000;
 }
 
 .emoji-grid {
-    font-size: 24px;
+    font-size: 26px;
     letter-spacing: 4px;
-    background: #09090f;
-    padding: 12px;
-    border: 3px solid var(--border-dark);
-    margin-bottom: 12px;
+    background: #050508;
+    padding: 14px;
+    border: 3px solid var(--border-light);
 }
 
-.modal-stats {
-    font-size: 20px;
-    color: var(--text-main);
-    margin-bottom: 18px;
-}
+.modal-stats { font-size: 22px; color: var(--text-main); }
+.modal-actions { display: flex; gap: 10px; justify-content: center; }
 
-.modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-/* Animations & Particles */
-@keyframes pixelFloat {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(-4px); }
-}
-
-@keyframes dealCard {
-    0% { opacity: 0; transform: translateY(20px) scale(0.9); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+/* Animations */
+@keyframes dealCardSpread {
+    0% { opacity: 0; transform: translateY(50px) scale(0.7) rotate(calc(var(--i, 0) * 5deg)); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
 }
 
 @keyframes popIn {
@@ -446,21 +493,13 @@ input[type="text"]:focus {
     100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes burnFlash {
-    0% { filter: brightness(2.5) hue-rotate(-30deg); }
-    100% { filter: brightness(1); }
-}
-
-.shake {
-    animation: screenShake 0.35s steps(2);
-}
+.shake { animation: screenShake 0.35s steps(2); }
 
 @keyframes screenShake {
     0%, 100% { transform: translate(0, 0); }
-    20% { transform: translate(-6px, 4px); }
-    40% { transform: translate(6px, -4px); }
-    60% { transform: translate(-4px, -2px); }
-    80% { transform: translate(4px, 2px); }
+    25% { transform: translate(-8px, 6px); }
+    50% { transform: translate(8px, -6px); }
+    75% { transform: translate(-5px, -3px); }
 }
 
 .pixel-particle {
