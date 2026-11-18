@@ -3,76 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SMOKESCREEN // DAILY DEDUCTION</title>
+    <title>SMOKESCREEN // ARCADE DEDUCTION</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <!-- Retro CRT Scanline & Vignette Overlay -->
     <div class="crt-overlay"></div>
     <div id="particle-container"></div>
 
     <div class="game-wrapper" id="game-wrapper">
-        <!-- Header & Mode Switcher -->
-        <header class="pixel-box header">
-            <div class="title-row">
-                <span class="flame-icon">🔥</span>
-                <h1>SMOKESCREEN</h1>
-                <span class="flame-icon">🔥</span>
-            </div>
-            <p class="subtitle">6 TRUTHS // 2 LIES // TRUST NOTHING</p>
-            
-            <div class="mode-bar">
-                <button id="btn-daily" class="pixel-btn active" onclick="switchMode('daily')">
-                    DAILY #<span id="daily-number">1</span>
-                </button>
-                <button id="btn-arcade" class="pixel-btn locked" onclick="switchMode('arcade')">
-                    🔒 ARCADE
-                </button>
-            </div>
-        </header>
+        
+        <!-- MAIN MENU SCREEN -->
+        <div id="main-menu" class="screen active-screen">
+            <div class="pixel-box menu-box">
+                <div class="menu-header">
+                    <span class="flame-icon">🔥</span>
+                    <h1 class="glow-title">SMOKESCREEN</h1>
+                    <span class="flame-icon">🔥</span>
+                </div>
+                <p class="menu-subtitle">HIGH-STAKES DEDUCTION & DECEPTION</p>
+                
+                <div class="menu-stats-preview">
+                    <span>STREAK: <strong id="menu-streak">0</strong></span>
+                    <span>DAILY #<span id="menu-daily-num">1</span></span>
+                </div>
 
-        <!-- HUD Stats -->
-        <div class="hud-bar">
-            <div class="hud-item">
-                <span class="hud-label">SCORE</span>
-                <span id="hud-score" class="hud-val">1000</span>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">GUESSES</span>
-                <span id="hud-guesses" class="hud-val">3</span>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">BURNS</span>
-                <span id="hud-burns" class="hud-val">2</span>
-            </div>
-            <div class="hud-item">
-                <span class="hud-label">STREAK</span>
-                <span id="hud-streak" class="hud-val">0</span>
+                <div class="menu-btn-group">
+                    <button class="pixel-btn btn-huge btn-accent" onclick="startDailyGame()">▶ PLAY DAILY PUZZLE</button>
+                    <button id="menu-arcade-btn" class="pixel-btn btn-huge locked" onclick="startArcadeGame()">🕹️ ARCADE MODE (LOCKED)</button>
+                    <button class="pixel-btn btn-huge" onclick="toggleInstructions(true)">📜 HOW TO PLAY</button>
+                </div>
             </div>
         </div>
 
-        <!-- Status Ticker -->
-        <div id="status-banner" class="status-banner">
-            TAP A CARD TO FLIP A CLUE...
+        <!-- GAMEPLAY SCREEN -->
+        <div id="game-screen" class="screen hidden">
+            <!-- Header Bar -->
+            <header class="pixel-box header-bar">
+                <div class="header-top">
+                    <button class="pixel-btn btn-small" onclick="returnToMenu()">◀ MENU</button>
+                    <span id="game-mode-badge" class="mode-badge">DAILY #1</span>
+                    <span class="sound-toggle" onclick="toggleAudio()">🔊 FX</span>
+                </div>
+                <!-- Time Limit Bar -->
+                <div class="timer-track">
+                    <div id="timer-fill" class="timer-fill"></div>
+                </div>
+            </header>
+
+            <!-- HUD Stats -->
+            <div class="hud-bar">
+                <div class="hud-item">
+                    <span class="hud-label">SCORE</span>
+                    <span id="hud-score" class="hud-val">1000</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">GUESSES</span>
+                    <span id="hud-guesses" class="hud-val">3</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">BURNS</span>
+                    <span id="hud-burns" class="hud-val">2</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">TIME</span>
+                    <span id="hud-time" class="hud-val">45</span>
+                </div>
+            </div>
+
+            <!-- Status Ticker -->
+            <div id="status-banner" class="status-banner">
+                DEALING HAND... TRUST NO CLUE.
+            </div>
+
+            <!-- Balatro-Style 8-Card Fan Grid -->
+            <main class="card-grid" id="card-grid">
+                <!-- Injected via script.js -->
+            </main>
+
+            <!-- Guess Input Area -->
+            <section class="guess-section pixel-box">
+                <div class="input-row">
+                    <input type="text" id="guess-input" placeholder="TYPE SECRET WORD..." autocomplete="off" spellcheck="false">
+                    <button id="btn-submit" class="pixel-btn btn-accent" onclick="submitGuess()">LOCK IN</button>
+                </div>
+            </section>
         </div>
 
-        <!-- 8-Card Grid -->
-        <main class="card-grid" id="card-grid">
-            <!-- Cards injected by script.js -->
-        </main>
-
-        <!-- Guess Input Area -->
-        <section class="guess-section pixel-box" id="guess-section">
-            <div class="input-row">
-                <input type="text" id="guess-input" placeholder="TYPE SECRET WORD..." autocomplete="off" spellcheck="false">
-                <button id="btn-submit" class="pixel-btn btn-accent" onclick="submitGuess()">LOCK IN</button>
+        <!-- HOW TO PLAY MODAL -->
+        <div id="instructions-modal" class="modal hidden">
+            <div class="modal-content pixel-box">
+                <h2>HOW TO PLAY</h2>
+                <div class="instructions-body">
+                    <p>🎯 <strong>THE GOAL:</strong> Deduce the secret word using the clues.</p>
+                    <p>🃏 <strong>8 CARDS:</strong> 6 are real clues, and <strong>2 are Smokescreens (Lies)</strong> designed to trick you!</p>
+                    <p>🔥 <strong>BURN ABILITY:</strong> Flip a card. If you suspect it's a lie, hit <strong>BURN</strong> to clear it (+150 pts for catching lies, -150 pts if you burn a real clue).</p>
+                    <p>⏱️ <strong>TIME PRESSURE:</strong> Beat the timer before your points drain away!</p>
+                </div>
+                <button class="pixel-btn btn-accent" onclick="toggleInstructions(false)">GOT IT</button>
             </div>
-        </section>
+        </div>
 
-        <!-- End-of-Round Modal -->
+        <!-- END ROUND MODAL -->
         <div id="end-modal" class="modal hidden">
             <div class="modal-content pixel-box">
                 <h2 id="modal-title">CASE SOLVED</h2>
@@ -84,10 +118,11 @@
 
                 <div class="modal-actions">
                     <button id="btn-share" class="pixel-btn btn-accent" onclick="copyShareText()">📋 COPY RESULT</button>
-                    <button id="btn-next-arcade" class="pixel-btn" onclick="startArcadeRound()">▶ NEXT ARCADE</button>
+                    <button class="pixel-btn" onclick="returnToMenu()">MAIN MENU</button>
                 </div>
             </div>
         </div>
+
     </div>
 
     <script src="./script.js"></script>
