@@ -61,8 +61,8 @@ const PUZZLE_BANK = [
     }
 ];
 
-let currentMode = 'daily'; // 'daily' or 'arcade'
-let currentDifficulty = 'easy'; // easy, medium, hard, extreme
+let currentMode = 'daily';
+let currentDifficulty = 'easy';
 let currentPuzzle = null;
 let deck = [];
 let score = 1000;
@@ -102,7 +102,7 @@ function playSound(type) {
     } else if (type === 'burn_lie') {
         osc.type = 'square';
         osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAlt = 600;
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
         gain.gain.setValueAtTime(0.2, now);
         gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
@@ -169,12 +169,11 @@ function updateMenuStats() {
     document.getElementById('acc-streak').innerText = streakVal;
     document.getElementById('acc-wins').innerText = winsVal;
 
-    // Daily Lock check
     const isDailyDone = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
     const dailyBtn = document.getElementById('btn-play-daily');
     if (isDailyDone) {
         dailyBtn.classList.add('locked');
-        dailyBtn.innerHTML = "✅ DAILY COMPLETED (COME BACK TOMORROW)";
+        dailyBtn.innerHTML = "[ ✔ ] DAILY COMPLETED (LOCKED)";
     }
 }
 
@@ -192,7 +191,7 @@ function toggleInstructions(show) {
 
 function toggleAudio() {
     soundEnabled = !soundEnabled;
-    document.querySelector('.sound-toggle').innerText = soundEnabled ? "🔊 FX" : "🔇 FX";
+    document.querySelector('.sound-toggle').innerText = soundEnabled ? "[ 🔊 ] FX" : "[ 🔇 ] FX";
 }
 
 function toggleTheme() {
@@ -220,14 +219,14 @@ function returnToMenu() {
 function startDailyGame() {
     const dayIdx = Math.abs(getDayIndex());
     if (localStorage.getItem('smokescreen_daily_done') === String(dayIdx)) {
-        alert("You have already completed today's Daily challenge! Try Arcade mode.");
+        alert("Daily puzzle already completed for today! Try Arcade mode.");
         return;
     }
 
     currentMode = 'daily';
     const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
     const rng = mulberry32(dayIdx + 99);
-    setupBoard(puzzleObj, rng, `DAILY #${dayIdx + 1}`, 2); // 2 lies for daily
+    setupBoard(puzzleObj, rng, `DAILY #${dayIdx + 1}`, 2);
 }
 
 function startArcadeGame(diff) {
@@ -263,7 +262,6 @@ function setupBoard(puzzleObj, rng, modeBadgeText, lieCount) {
     document.getElementById('game-screen').classList.remove('hidden');
     document.getElementById('game-screen').classList.add('active-screen');
 
-    // Select specified number of lies and true clues to make a total of 8 cards
     const shuffledLies = shuffleWithRng(puzzleObj.lies, rng).slice(0, lieCount);
     const trueCluesNeeded = 8 - lieCount;
     const shuffledClues = shuffleWithRng(puzzleObj.clues, rng).slice(0, trueCluesNeeded);
@@ -307,9 +305,9 @@ function renderCards() {
 
         let bottomAction = '';
         if (card.flipped && !card.burned && !gameOver) {
-            bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">🔥 BURN</button>`;
+            bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">[ 🔥 ] BURN</button>`;
         } else if (card.burned) {
-            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px;">🔥 INCINERATED</div>`;
+            bottomAction = `<div class="burn-badge" style="color:var(--accent-red); font-size:10px;">[ 🔥 ] INCINERATED</div>`;
         }
 
         slot.innerHTML = `
@@ -354,8 +352,6 @@ function burnCard(event, index) {
     deck[index].burned = true;
     deck[index].burning = true;
     triggerShake();
-
-    const totalLiesInDeck = deck.filter(c => c.isLie).length;
 
     if (deck[index].isLie) {
         score += 200;
@@ -439,7 +435,7 @@ function endRound(won) {
 
     const modal = document.getElementById('end-modal');
     document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "INVESTIGATION FAILED";
-    document.getElementById('end-icon').innerText = won ? "🏆" : "💀";
+    document.getElementById('end-icon').innerText = won ? "[ 🏆 ]" : "[ 💀 ]";
     document.getElementById('end-final-score').innerText = `${score} PTS`;
     document.getElementById('rank-badge').innerText = `INVESTIGATION RANK: ${rank}`;
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
@@ -498,7 +494,7 @@ function copyShareText() {
     const text = `SMOKESCREEN | Score: ${score} PTS`;
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-share');
-        btn.innerText = "✅ COPIED!";
-        setTimeout(() => btn.innerText = "📋 COPY SCORE", 2000);
+        btn.innerText = "[ ✔ ] COPIED!";
+        setTimeout(() => btn.innerText = "[ 📋 ] COPY SCORE", 2000);
     });
 }
