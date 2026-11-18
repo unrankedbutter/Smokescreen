@@ -1,4 +1,3 @@
-// --- PUZZLE DATABASE (Add as many objects as you want!) ---
 const PUZZLE_BANK = [
     {
         answer: "MICROWAVE",
@@ -63,63 +62,82 @@ const PUZZLE_BANK = [
             "You play me by blowing air through a wooden reed.",
             "I fit neatly inside a standard backpack."
         ]
-    },
-    {
-        answer: "UMBRELLA",
-        aliases: ["PARASOL"],
-        clues: [
-            "I collapse into a stick when not in use.",
-            "Strong gusts of wind frequently turn me inside out.",
-            "Opening me indoors is considered bad luck.",
-            "I shield you from falling water.",
-            "I have metal ribs stretched under waterproof fabric.",
-            "People constantly forget me in restaurants and buses."
-        ],
-        lies: [
-            "I am worn on your feet to climb icy mountains.",
-            "I am filled with helium to float above clouds."
-        ]
-    },
-    {
-        answer: "MIRROR",
-        aliases: ["LOOKING GLASS"],
-        clues: [
-            "I copy every movement you make instantly.",
-            "I flip left and right, but not up and down.",
-            "Breaking me supposedly brings seven years of bad luck.",
-            "Vampires famously cast no reflection in me.",
-            "I am made of glass backed with reflective metal.",
-            "You look at me while brushing your teeth."
-        ],
-        lies: [
-            "I absorb all light and emit pitch-black darkness.",
-            "I am woven out of heavy cotton yarn."
-        ]
     }
 ];
 
-// --- GAME STATE ---
-let currentMode = 'daily'; // 'daily' or 'arcade'
+let currentMode = 'daily';
 let currentPuzzle = null;
 let deck = [];
 let score = 1000;
 let guessesLeft = 3;
 let burnsLeft = 2;
+let timeLeft = 45;
+let timerInterval = null;
 let gameOver = false;
-let actionHistory = []; // Tracks emojis for sharing: 🟩, 🟥, 🔥, 💀, 🎯, ❌
+let actionHistory = [];
+let soundEnabled = true;
 
-// --- INITIALIZATION ---
+// Web Audio API Synthesizer (No external files needed!)
+let audioCtx = null;
+function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playSound(type) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'flip') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.08);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+    } else if (type === 'burn_lie') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    } else if (type === 'burn_truth') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(80, now + 0.25);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+    } else if (type === 'win') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(330, now);
+        osc.frequency.setValueAtTime(440, now + 0.1);
+        osc.frequency.setValueAtTime(550, now + 0.2);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    }
+}
+
 window.onload = () => {
-    updateHUD();
-    checkArcadeUnlock();
-    loadDailyPuzzle();
-
+    updateMenuStats();
     document.getElementById('guess-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') submitGuess();
     });
 };
 
-// --- SEEDED RANDOM FOR SYNCHRONIZED DAILY PUZZLE ---
 function getDayIndex() {
     const startEpoch = new Date('2026-01-01T00:00:00Z').getTime();
     const now = new Date();
@@ -145,67 +163,72 @@ function shuffleWithRng(array, rng) {
     return arr;
 }
 
-// --- MODE MANAGEMENT ---
-function switchMode(mode) {
-    if (mode === 'arcade' && !isArcadeUnlocked()) {
-        setStatus("FINISH TODAY'S DAILY FIRST TO UNLOCK ARCADE!", "#ffaa00");
-        triggerShake();
-        return;
-    }
-    currentMode = mode;
-    document.getElementById('btn-daily').classList.toggle('active', mode === 'daily');
-    document.getElementById('btn-arcade').classList.toggle('active', mode === 'arcade');
-    document.getElementById('end-modal').classList.add('hidden');
-
-    if (mode === 'daily') {
-        loadDailyPuzzle();
-    } else {
-        startArcadeRound();
-    }
-}
-
-function isArcadeUnlocked() {
-    const dayIdx = getDayIndex();
-    return localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
-}
-
-function checkArcadeUnlock() {
-    const btn = document.getElementById('btn-arcade');
-    if (isArcadeUnlocked()) {
-        btn.classList.remove('locked');
-        btn.innerHTML = "🕹️ ARCADE";
-    }
-}
-
-// --- PUZZLE SETUP ---
-function loadDailyPuzzle() {
+function updateMenuStats() {
     const dayIdx = Math.abs(getDayIndex());
-    document.getElementById('daily-number').innerText = dayIdx + 1;
-    
-    const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
-    // Shuffle cards uniquely per session while keeping the exact same daily target
-    const rng = mulberry32(dayIdx + Math.floor(Math.random() * 1000));
-    setupBoard(puzzleObj, rng);
-    setStatus("DAILY CHALLENGE: DODGE THE 2 SMOKESCREENS.");
+    document.getElementById('menu-daily-num').innerText = dayIdx + 1;
+    document.getElementById('menu-streak').innerText = localStorage.getItem('smokescreen_streak') || '0';
+
+    const isUnlocked = localStorage.getItem('smokescreen_daily_done') === String(dayIdx);
+    const arcadeBtn = document.getElementById('menu-arcade-btn');
+    if (isUnlocked) {
+        arcadeBtn.classList.remove('locked');
+        arcadeBtn.innerHTML = "🕹️ PLAY ARCADE MODE";
+    }
 }
 
-function startArcadeRound() {
+function toggleInstructions(show) {
+    document.getElementById('instructions-modal').classList.toggle('hidden', !show);
+}
+
+function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    document.querySelector('.sound-toggle').innerText = soundEnabled ? "🔊 FX" : "🔇 FX";
+}
+
+function returnToMenu() {
+    clearInterval(timerInterval);
     document.getElementById('end-modal').classList.add('hidden');
-    const randomIdx = Math.floor(Math.random() * PUZZLE_BANK.length);
-    const puzzleObj = PUZZLE_BANK[randomIdx];
-    setupBoard(puzzleObj, Math.random);
-    setStatus("ARCADE MODE: UNLIMITED RUNS ACTIVE.");
+    document.getElementById('game-screen').classList.remove('active-screen');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('main-menu').classList.remove('hidden');
+    document.getElementById('main-menu').classList.add('active-screen');
+    updateMenuStats();
 }
 
-function setupBoard(puzzleObj, rng) {
+function startDailyGame() {
+    currentMode = 'daily';
+    const dayIdx = Math.abs(getDayIndex());
+    const puzzleObj = PUZZLE_BANK[dayIdx % PUZZLE_BANK.length];
+    const rng = mulberry32(dayIdx + 99);
+    setupBoard(puzzleObj, rng, `DAILY #${dayIdx + 1}`);
+}
+
+function startArcadeGame() {
+    const dayIdx = Math.abs(getDayIndex());
+    if (localStorage.getItem('smokescreen_daily_done') !== String(dayIdx)) return;
+
+    currentMode = 'arcade';
+    const randomPuzzle = PUZZLE_BANK[Math.floor(Math.random() * PUZZLE_BANK.length)];
+    setupBoard(randomPuzzle, Math.random, "ARCADE MODE");
+}
+
+function setupBoard(puzzleObj, rng, modeBadgeText) {
     currentPuzzle = puzzleObj;
     score = 1000;
     guessesLeft = 3;
     burnsLeft = 2;
+    timeLeft = 45;
     gameOver = false;
     actionHistory = [];
+
+    document.getElementById('game-mode-badge').innerText = modeBadgeText;
     document.getElementById('guess-input').value = '';
     document.getElementById('guess-input').disabled = false;
+
+    document.getElementById('main-menu').classList.remove('active-screen');
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    document.getElementById('game-screen').classList.add('active-screen');
 
     const rawCards = [
         ...puzzleObj.clues.map(text => ({ text, isLie: false, flipped: false, burned: false })),
@@ -215,9 +238,23 @@ function setupBoard(puzzleObj, rng) {
     deck = shuffleWithRng(rawCards, rng);
     renderCards();
     updateHUD();
+    startTimer();
+    setStatus("DEALT! FLIP CARDS AND DEDUCE THE TARGET.");
 }
 
-// --- RENDERING & INTERACTIONS ---
+function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (gameOver) return;
+        timeLeft--;
+        updateHUD();
+        if (timeLeft <= 0) {
+            score = Math.max(50, score - 100);
+            timeLeft = 45; // loop timer penalties
+        }
+    }, 1000);
+}
+
 function renderCards() {
     const grid = document.getElementById('card-grid');
     grid.innerHTML = '';
@@ -225,7 +262,8 @@ function renderCards() {
     deck.forEach((card, index) => {
         const slot = document.createElement('div');
         slot.className = 'card-slot';
-        slot.style.animationDelay = `${index * 0.05}s`;
+        slot.style.setProperty('--i', index);
+        slot.style.animationDelay = `${index * 0.04}s`;
         if (card.flipped) slot.classList.add('flipped');
         if (card.burned) {
             slot.classList.add(card.isLie ? 'burned-lie' : 'burned-truth');
@@ -262,17 +300,15 @@ function flipCard(event, index) {
     if (gameOver || deck[index].flipped) return;
 
     deck[index].flipped = true;
+    playSound('flip');
     spawnParticles(event.clientX, event.clientY, '#00f0ff');
 
-    // First flip is free; subsequent flips cost 100 pts
     const flippedCount = deck.filter(c => c.flipped).length;
-    if (flippedCount > 1) {
-        score = Math.max(100, score - 100);
-    }
+    if (flippedCount > 1) score = Math.max(100, score - 80);
 
     actionHistory.push(deck[index].isLie ? '🟥' : '🟩');
-    setStatus(flippedCount === 1 ? "FIRST FLIP FREE! WATCH FOR LIES." : "CLUE REVEALED (-100 PTS).");
-    
+    setStatus(flippedCount === 1 ? "FIRST FLIP FREE!" : "CLUE INSPECTED (-80 PTS).");
+
     renderCards();
     updateHUD();
 }
@@ -286,15 +322,17 @@ function burnCard(event, index) {
     triggerShake();
 
     if (deck[index].isLie) {
-        score += 150;
+        score += 200;
         actionHistory.push('🔥');
+        playSound('burn_lie');
         spawnParticles(event.clientX, event.clientY, '#ffaa00');
-        setStatus("DIRECT HIT! YOU BURNED A SMOKESCREEN (+150 PTS)!", "#2ce865");
+        setStatus("SUCCESS! SMOKESCREEN DESTROYED (+200 PTS)!", "#2ce865");
     } else {
-        score = Math.max(50, score - 150);
+        score = Math.max(50, score - 200);
         actionHistory.push('💀');
+        playSound('burn_truth');
         spawnParticles(event.clientX, event.clientY, '#ff2a55');
-        setStatus("OUCH! THAT WAS A REAL CLUE (-150 PTS)!", "#ff2a55");
+        setStatus("MISTAKE! YOU BURNED A REAL CLUE (-200 PTS)!", "#ff2a55");
     }
 
     renderCards();
@@ -311,6 +349,7 @@ function submitGuess() {
 
     if (validAnswers.includes(guess)) {
         actionHistory.push('🎯');
+        playSound('win');
         endRound(true);
     } else {
         guessesLeft--;
@@ -323,54 +362,48 @@ function submitGuess() {
         if (guessesLeft <= 0) {
             endRound(false);
         } else {
-            setStatus(`WRONG GUESS! ${guessesLeft} ATTEMPTS LEFT (-200 PTS).`, "#ff2a55");
+            setStatus(`WRONG! ${guessesLeft} TRIES LEFT (-200 PTS).`, "#ff2a55");
         }
     }
 }
 
 function endRound(won) {
     gameOver = true;
+    clearInterval(timerInterval);
     document.getElementById('guess-input').disabled = true;
 
-    // Reveal all remaining cards
     deck.forEach(c => c.flipped = true);
     renderCards();
 
     if (currentMode === 'daily') {
         const dayIdx = getDayIndex();
         localStorage.setItem('smokescreen_daily_done', String(dayIdx));
-        
         if (won) {
             const streak = parseInt(localStorage.getItem('smokescreen_streak') || '0', 10) + 1;
             localStorage.setItem('smokescreen_streak', String(streak));
         } else {
             localStorage.setItem('smokescreen_streak', '0');
         }
-        checkArcadeUnlock();
-        updateHUD();
     }
 
-    // Show End Modal
     const modal = document.getElementById('end-modal');
-    const content = modal.querySelector('.modal-content');
-    content.classList.toggle('lost', !won);
-
-    document.getElementById('modal-title').innerText = won ? "SMOKESCREEN CLEARED!" : "FOOLED BY THE SMOKE";
+    document.getElementById('modal-title').innerText = won ? "CASE SOLVED!" : "BUSTED BY SMOKE";
     document.getElementById('modal-answer').innerText = currentPuzzle.answer;
     document.getElementById('emoji-grid').innerText = actionHistory.join(' ');
-    document.getElementById('modal-stats').innerText = won 
-        ? `FINAL SCORE: ${score} PTS` 
-        : `BETTER LUCK NEXT ROUND`;
-
+    document.getElementById('modal-stats').innerText = won ? `SCORE: ${score} PTS` : `GAME OVER`;
     modal.classList.remove('hidden');
 }
 
-// --- UI HELPERS & VISUAL FX ---
 function updateHUD() {
     document.getElementById('hud-score').innerText = score;
     document.getElementById('hud-guesses').innerText = guessesLeft;
     document.getElementById('hud-burns').innerText = burnsLeft;
-    document.getElementById('hud-streak').innerText = localStorage.getItem('smokescreen_streak') || '0';
+    document.getElementById('hud-time').innerText = timeLeft;
+
+    const timerFill = document.getElementById('timer-fill');
+    const pct = (timeLeft / 45) * 100;
+    timerFill.style.width = `${pct}%`;
+    timerFill.style.backgroundColor = timeLeft < 15 ? '#ff2a55' : '#00f0ff';
 }
 
 function setStatus(msg, color = "#00f0ff") {
@@ -383,21 +416,21 @@ function setStatus(msg, color = "#00f0ff") {
 function triggerShake() {
     const wrapper = document.getElementById('game-wrapper');
     wrapper.classList.remove('shake');
-    void wrapper.offsetWidth; // Force reflow
+    void wrapper.offsetWidth;
     wrapper.classList.add('shake');
 }
 
 function spawnParticles(x, y, color) {
     const container = document.getElementById('particle-container');
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.left = `${x}px`;
         p.style.top = `${y}px`;
         p.style.backgroundColor = color;
 
-        const angle = (Math.PI * 2 * i) / 12;
-        const dist = 30 + Math.random() * 40;
+        const angle = (Math.PI * 2 * i) / 10;
+        const dist = 35 + Math.random() * 35;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
 
@@ -407,10 +440,7 @@ function spawnParticles(x, y, color) {
 }
 
 function copyShareText() {
-    const dayNum = document.getElementById('daily-number').innerText;
-    const header = currentMode === 'daily' ? `SMOKESCREEN #${dayNum}` : `SMOKESCREEN ARCADE`;
-    const text = `${header}\n${actionHistory.join('')}\nScore: ${score}`;
-    
+    const text = `SMOKESCREEN\n${actionHistory.join('')}\nScore: ${score}`;
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-share');
         btn.innerText = "✅ COPIED!";
