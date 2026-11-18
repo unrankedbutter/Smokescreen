@@ -77,7 +77,6 @@ let gameOver = false;
 let actionHistory = [];
 let soundEnabled = true;
 
-// Web Audio API Synthesizer (No external files needed!)
 let audioCtx = null;
 function initAudio() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -92,7 +91,6 @@ function playSound(type) {
     const gain = audioCtx.createGain();
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-
     const now = audioCtx.currentTime;
 
     if (type === 'flip') {
@@ -105,20 +103,20 @@ function playSound(type) {
         osc.stop(now + 0.08);
     } else if (type === 'burn_lie') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(500, now + 0.3);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc.stop(now + 0.3);
     } else if (type === 'burn_truth') {
         osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(300, now);
-        osc.frequency.linearRampToValueAtTime(80, now + 0.25);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.frequency.setValueAtTime(250, now);
+        osc.frequency.linearRampToValueAtTime(60, now + 0.3);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
         osc.start(now);
-        osc.stop(now + 0.25);
+        osc.stop(now + 0.3);
     } else if (type === 'win') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(330, now);
@@ -250,7 +248,7 @@ function startTimer() {
         updateHUD();
         if (timeLeft <= 0) {
             score = Math.max(50, score - 100);
-            timeLeft = 45; // loop timer penalties
+            timeLeft = 45;
         }
     }, 1000);
 }
@@ -259,23 +257,22 @@ function renderCards() {
     const grid = document.getElementById('card-grid');
     grid.innerHTML = '';
 
+    // Only render cards that haven't been completely burned away
     deck.forEach((card, index) => {
+        if (card.removed) return;
+
         const slot = document.createElement('div');
         slot.className = 'card-slot';
-        slot.style.setProperty('--i', index);
-        slot.style.animationDelay = `${index * 0.04}s`;
         if (card.flipped) slot.classList.add('flipped');
-        if (card.burned) {
-            slot.classList.add(card.isLie ? 'burned-lie' : 'burned-truth');
-        }
+        if (card.burning) slot.classList.add('is-burning');
 
         let bottomAction = '';
         if (card.flipped && !card.burned && !gameOver) {
             bottomAction = `<button class="burn-btn" onclick="burnCard(event, ${index})">🔥 BURN LIE</button>`;
         } else if (card.burned) {
             bottomAction = card.isLie 
-                ? `<div class="burn-badge badge-lie">🔥 LIE BURNED!</div>`
-                : `<div class="burn-badge badge-truth">💀 BURNED TRUTH</div>`;
+                ? `<div class="burn-badge badge-lie">🔥 INCINERATED</div>`
+                : `<div class="burn-badge badge-truth">💀 INCINERATED</div>`;
         }
 
         slot.innerHTML = `
@@ -297,13 +294,13 @@ function renderCards() {
 }
 
 function flipCard(event, index) {
-    if (gameOver || deck[index].flipped) return;
+    if (gameOver || deck[index].flipped || deck[index].burned) return;
 
     deck[index].flipped = true;
     playSound('flip');
     spawnParticles(event.clientX, event.clientY, '#00f0ff');
 
-    const flippedCount = deck.filter(c => c.flipped).length;
+    const flippedCount = deck.filter(c => c.flipped && !c.burned).length;
     if (flippedCount > 1) score = Math.max(100, score - 80);
 
     actionHistory.push(deck[index].isLie ? '🟥' : '🟩');
@@ -319,6 +316,7 @@ function burnCard(event, index) {
 
     burnsLeft--;
     deck[index].burned = true;
+    deck[index].burning = true;
     triggerShake();
 
     if (deck[index].isLie) {
@@ -326,16 +324,23 @@ function burnCard(event, index) {
         actionHistory.push('🔥');
         playSound('burn_lie');
         spawnParticles(event.clientX, event.clientY, '#ffaa00');
-        setStatus("SUCCESS! SMOKESCREEN DESTROYED (+200 PTS)!", "#2ce865");
+        setStatus("SUCCESS! SMOKESCREEN INCINERATED (+200 PTS)!", "#2ce865");
     } else {
         score = Math.max(50, score - 200);
         actionHistory.push('💀');
         playSound('burn_truth');
         spawnParticles(event.clientX, event.clientY, '#ff2a55');
-        setStatus("MISTAKE! YOU BURNED A REAL CLUE (-200 PTS)!", "#ff2a55");
+        setStatus("MISTAKE! YOU INCINERATED A REAL CLUE (-200 PTS)!", "#ff2a55");
     }
 
     renderCards();
+
+    // After flame animation finishes, remove card completely and reflow grid layout
+    setTimeout(() => {
+        deck[index].removed = true;
+        renderCards();
+    }, 550);
+
     updateHUD();
 }
 
@@ -372,7 +377,7 @@ function endRound(won) {
     clearInterval(timerInterval);
     document.getElementById('guess-input').disabled = true;
 
-    deck.forEach(c => c.flipped = true);
+    deck.forEach(c => { if(!c.removed) c.flipped = true; });
     renderCards();
 
     if (currentMode === 'daily') {
@@ -422,19 +427,19 @@ function triggerShake() {
 
 function spawnParticles(x, y, color) {
     const container = document.getElementById('particle-container');
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 14; i++) {
         const p = document.createElement('div');
         p.className = 'pixel-particle';
         p.style.left = `${x}px`;
         p.style.top = `${y}px`;
         p.style.backgroundColor = color;
 
-        const angle = (Math.PI * 2 * i) / 10;
-        const dist = 35 + Math.random() * 35;
+        const angle = (Math.PI * 2 * i) / 14;
+        const dist = 40 + Math.random() * 50;
         p.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
         p.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
 
-        container.appendChild(p);
+    container.appendChild(p);
         setTimeout(() => p.remove(), 600);
     }
 }
