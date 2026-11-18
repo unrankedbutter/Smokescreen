@@ -1,16 +1,16 @@
 :root {
-    --bg-void: #040407;
-    --bg-panel: #0d0d14;
-    --bg-card-back: #12121c;
-    --bg-card-front: #181826;
-    --border-dark: #222233;
+    --bg-void: #020205;
+    --bg-panel: #0a0a12;
+    --bg-card-back: #10101a;
+    --bg-card-front: #161624;
+    --border-dark: #1e1e30;
     --border-light: #52527a;
     --accent-cyan: #00f0ff;
     --accent-green: #2ce865;
     --accent-red: #ff2a55;
     --accent-amber: #ffaa00;
-    --text-main: #f0f0ff;
-    --text-dim: #9494b8;
+    --text-main: #f5f5ff;
+    --text-dim: #a3a3c2;
 }
 
 * {
@@ -31,13 +31,13 @@ body {
     align-items: center;
     overflow-x: hidden;
     background-image: 
-        radial-gradient(#151522 1.5px, transparent 1.5px),
-        radial-gradient(#090910 1.5px, var(--bg-void) 1.5px);
-    background-size: 32px 32px;
-    background-position: 0 0, 16px 16px;
+        radial-gradient(#141421 2px, transparent 2px),
+        radial-gradient(#08080f 2px, var(--bg-void) 2px);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
 }
 
-/* CRT Scanlines & Vignette */
+/* Highly Transparent, Non-Intrusive Scanlines */
 .crt-overlay {
     position: fixed;
     inset: 0;
@@ -45,14 +45,14 @@ body {
     z-index: 999;
     background: linear-gradient(
         rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.4) 50%
-    ), radial-gradient(circle, transparent 55%, rgba(0, 0, 0, 0.8) 100%);
-    background-size: 100% 4px, 100% 100%;
+        rgba(0, 0, 0, 0.15) 50%
+    );
+    background-size: 100% 4px;
 }
 
 .game-wrapper {
     width: 100%;
-    max-width: 720px;
+    max-width: 840px;
     padding: 16px;
     position: relative;
     z-index: 2;
@@ -61,7 +61,7 @@ body {
 .screen {
     display: none;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
     animation: screenFadeIn 0.3s steps(3);
 }
 
@@ -70,18 +70,17 @@ body {
 }
 
 @keyframes screenFadeIn {
-    0% { opacity: 0; transform: scale(0.98); }
+    0% { opacity: 0; transform: scale(0.99); }
     100% { opacity: 1; transform: scale(1); }
 }
 
-/* Pixelated Stepped Borders */
 .pixel-box {
     background: var(--bg-panel);
     border: 4px solid var(--border-light);
     box-shadow: 
-        inset 0 0 0 2px #07070d,
-        0 8px 0 #020205;
-    padding: 18px;
+        inset 0 0 0 2px #05050a,
+        0 8px 0 #010103;
+    padding: 22px;
 }
 
 /* Main Menu Screen */
@@ -89,8 +88,8 @@ body {
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 32px 20px;
+    gap: 24px;
+    padding: 40px 24px;
 }
 
 .menu-header {
@@ -102,45 +101,45 @@ body {
 
 .glow-title {
     font-family: 'Press Start 2P', monospace;
-    font-size: clamp(20px, 5vw, 28px);
+    font-size: clamp(22px, 5vw, 32px);
     color: var(--text-main);
-    text-shadow: 4px 4px 0px var(--accent-red), -2px -2px 0px #151522;
+    text-shadow: 4px 4px 0px var(--accent-red), -2px -2px 0px #12121c;
     letter-spacing: 3px;
 }
 
 .menu-subtitle {
     color: var(--accent-cyan);
-    font-size: 22px;
+    font-size: 24px;
     letter-spacing: 2px;
 }
 
 .menu-stats-preview {
     display: flex;
     justify-content: center;
-    gap: 24px;
-    font-size: 22px;
+    gap: 32px;
+    font-size: 24px;
     color: var(--text-dim);
-    background: #08080f;
-    padding: 10px;
+    background: #06060a;
+    padding: 12px;
     border: 2px solid var(--border-dark);
 }
 
 .menu-btn-group {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     margin-top: 10px;
 }
 
 .btn-huge {
-    font-size: 13px;
-    padding: 16px;
+    font-size: 14px;
+    padding: 18px;
     width: 100%;
 }
 
 /* Header & Timer Bar */
 .header-bar {
-    padding: 10px 14px;
+    padding: 12px 18px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -154,19 +153,19 @@ body {
 
 .mode-badge {
     font-family: 'Press Start 2P', monospace;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--accent-cyan);
 }
 
 .sound-toggle {
     cursor: pointer;
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .timer-track {
     width: 100%;
-    height: 8px;
-    background: #050508;
+    height: 10px;
+    background: #030305;
     border: 2px solid var(--border-dark);
     overflow: hidden;
 }
@@ -183,22 +182,22 @@ body {
     font-family: 'Press Start 2P', monospace;
     font-size: 11px;
     padding: 12px 16px;
-    background: #141421;
+    background: #12121f;
     color: var(--text-main);
     border: 3px solid var(--border-light);
-    box-shadow: 0 4px 0 #030306;
+    box-shadow: 0 4px 0 #020204;
     cursor: pointer;
     transition: transform 0.08s steps(2), background 0.15s;
 }
 
 .pixel-btn:hover:not(.locked) {
-    background: #202035;
+    background: #1c1c30;
     border-color: var(--accent-cyan);
 }
 
 .pixel-btn:active:not(.locked) {
     transform: translateY(4px);
-    box-shadow: 0 0 0 #030306;
+    box-shadow: 0 0 0 #020204;
 }
 
 .pixel-btn.locked {
@@ -208,13 +207,13 @@ body {
 }
 
 .btn-accent {
-    background: #123824;
+    background: #0e301d;
     border-color: var(--accent-green);
     color: var(--accent-green);
 }
 
 .btn-accent:hover {
-    background: #194f32 !important;
+    background: #14452a !important;
 }
 
 .btn-small {
@@ -226,25 +225,25 @@ body {
 .hud-bar {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 10px;
 }
 
 .hud-item {
     background: var(--bg-panel);
     border: 3px solid var(--border-light);
-    padding: 8px 4px;
+    padding: 10px 6px;
     text-align: center;
 }
 
 .hud-label {
     display: block;
-    font-size: 16px;
+    font-size: 18px;
     color: var(--text-dim);
 }
 
 .hud-val {
     font-family: 'Press Start 2P', monospace;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--accent-amber);
     margin-top: 4px;
     display: block;
@@ -252,39 +251,38 @@ body {
 
 /* Status Banner */
 .status-banner {
-    background: #08080e;
-    border-left: 4px solid var(--accent-cyan);
-    padding: 10px 14px;
-    font-size: 22px;
+    background: #06060b;
+    border-left: 5px solid var(--accent-cyan);
+    padding: 12px 16px;
+    font-size: 24px;
     color: var(--accent-cyan);
     letter-spacing: 1px;
-    min-height: 42px;
+    min-height: 48px;
     display: flex;
     align-items: center;
 }
 
-/* Balatro-Style 8-Card Fan Grid */
+/* 8-Card Fan Grid with auto-rearranging gaps */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 14px;
     perspective: 1200px;
-    min-height: 330px;
+    min-height: 360px;
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
     .card-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 .card-slot {
-    height: 165px;
+    height: 180px;
     position: relative;
     cursor: pointer;
-    /* Balatro card dealing sweep animation */
-    animation: dealCardSpread 0.5s cubic-bezier(0.15, 0.85, 0.35, 1.2) backwards;
-    transform-origin: bottom center;
+    animation: dealCardSpread 0.4s cubic-bezier(0.15, 0.85, 0.35, 1.2) backwards;
+    transition: all 0.3s cubic-bezier(0.2, 0.85, 0.3, 1.15);
 }
 
 .card-inner {
@@ -308,19 +306,19 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 12px;
+    padding: 14px;
     text-align: center;
-    box-shadow: 0 6px 0 #020205;
+    box-shadow: 0 6px 0 #010103;
 }
 
 .card-back {
     background: var(--bg-card-back);
     background-image: repeating-linear-gradient(
         45deg,
-        #0c0c14,
-        #0c0c14 8px,
-        #151522 8px,
-        #151522 16px
+        #090910,
+        #090910 8px,
+        #12121c 8px,
+        #12121c 16px
     );
     transition: border-color 0.15s, transform 0.15s steps(2);
 }
@@ -328,7 +326,7 @@ body {
 .card-slot:not(.flipped):hover .card-back {
     border-color: var(--accent-cyan);
     transform: translateY(-6px) scale(1.03);
-    box-shadow: 0 12px 0 #020205, 0 0 16px rgba(0, 240, 255, 0.3);
+    box-shadow: 0 12px 0 #010103, 0 0 18px rgba(0, 240, 255, 0.3);
 }
 
 .card-number {
@@ -339,9 +337,9 @@ body {
 
 .card-qmark {
     font-family: 'Press Start 2P', monospace;
-    font-size: 26px;
+    font-size: 28px;
     color: var(--border-light);
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .card-front {
@@ -352,8 +350,8 @@ body {
 }
 
 .clue-text {
-    font-size: 21px;
-    line-height: 1.2;
+    font-size: 22px;
+    line-height: 1.25;
     color: var(--text-main);
     margin: auto 0;
     text-shadow: 1px 1px 0 #000;
@@ -362,10 +360,10 @@ body {
 .burn-btn {
     font-family: 'Press Start 2P', monospace;
     font-size: 10px;
-    background: #331018;
+    background: #380d16;
     color: var(--accent-red);
     border: 2px solid var(--accent-red);
-    padding: 6px;
+    padding: 8px;
     cursor: pointer;
     width: 100%;
     transition: background 0.1s;
@@ -376,55 +374,47 @@ body {
     color: #fff;
 }
 
-.card-slot.burned-lie .card-front {
-    background: #2b0c12;
-    border-color: var(--accent-red);
+/* Real Flame Burning Animation */
+.card-slot.is-burning {
+    animation: cardBurnShrink 0.6s steps(6) forwards !important;
+    pointer-events: none;
 }
 
-.card-slot.burned-truth .card-front {
-    background: #14141c;
-    border-color: #444;
-    opacity: 0.6;
+@keyframes cardBurnShrink {
+    0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+    30% { transform: scale(1.05) rotate(3deg); filter: brightness(2.5) sepia(1) saturate(5) hue-rotate(-30deg); }
+    70% { transform: scale(0.6) translateY(20px) rotate(-5deg); opacity: 0.8; filter: brightness(3) grayscale(0.5); }
+    100% { transform: scale(0) translateY(40px); opacity: 0; width: 0; margin: 0; padding: 0; border: none; }
 }
-
-.burn-badge {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    padding: 4px;
-    width: 100%;
-}
-
-.badge-lie { color: var(--accent-amber); }
-.badge-truth { color: var(--text-dim); }
 
 /* Guess Input */
 .input-row {
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 input[type="text"] {
     flex: 1;
-    background: #050508;
+    background: #030306;
     border: 3px solid var(--border-light);
     color: var(--accent-cyan);
     font-family: 'Press Start 2P', monospace;
-    font-size: 14px;
-    padding: 14px;
+    font-size: 15px;
+    padding: 16px;
     outline: none;
     text-transform: uppercase;
 }
 
 input[type="text"]:focus {
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
 }
 
 /* Modals */
 .modal {
     position: fixed;
     inset: 0;
-    background: rgba(2, 2, 5, 0.9);
+    background: rgba(1, 1, 3, 0.88);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -436,56 +426,54 @@ input[type="text"]:focus {
 
 .modal-content {
     width: 100%;
-    max-width: 460px;
+    max-width: 480px;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
     animation: popIn 0.25s steps(3);
 }
 
 .modal-content h2 {
     font-family: 'Press Start 2P', monospace;
-    font-size: 18px;
+    font-size: 20px;
     color: var(--accent-green);
 }
 
 .instructions-body {
     text-align: left;
-    font-size: 21px;
+    font-size: 22px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     color: var(--text-dim);
 }
 
-.instructions-body strong {
-    color: var(--text-main);
-}
+.instructions-body strong { color: var(--text-main); }
 
 .reveal-label { color: var(--text-dim); font-size: 18px; }
 .reveal-word {
     font-family: 'Press Start 2P', monospace;
-    font-size: 22px;
+    font-size: 24px;
     color: var(--accent-amber);
     text-shadow: 2px 2px 0 #000;
 }
 
 .emoji-grid {
-    font-size: 26px;
+    font-size: 28px;
     letter-spacing: 4px;
-    background: #050508;
-    padding: 14px;
+    background: #030306;
+    padding: 16px;
     border: 3px solid var(--border-light);
 }
 
-.modal-stats { font-size: 22px; color: var(--text-main); }
-.modal-actions { display: flex; gap: 10px; justify-content: center; }
+.modal-stats { font-size: 24px; color: var(--text-main); }
+.modal-actions { display: flex; gap: 12px; justify-content: center; }
 
 /* Animations */
 @keyframes dealCardSpread {
-    0% { opacity: 0; transform: translateY(50px) scale(0.7) rotate(calc(var(--i, 0) * 5deg)); }
-    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+    0% { opacity: 0; transform: translateY(40px) scale(0.8); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes popIn {
@@ -504,14 +492,14 @@ input[type="text"]:focus {
 
 .pixel-particle {
     position: fixed;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     pointer-events: none;
     z-index: 998;
-    animation: particleBurst 0.6s steps(5) forwards;
+    animation: particleBurst 0.6s steps(6) forwards;
 }
 
 @keyframes particleBurst {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0) rotate(180deg); opacity: 0; }
 }
